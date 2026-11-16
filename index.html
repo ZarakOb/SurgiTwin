@@ -1,0 +1,194 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Healthcare Governance Risk Auditor</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: audit worksheet — profile + questionnaire on the left, live findings ledger on the right; stacks on phones */
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --ink:#14213a; --ink2:#4b5568; --line:#dde1e8;
+  --accent:#1f5fa8; --accent-soft:#e6eefa;
+  --gap:#b42318; --gap-soft:#fdecea; --partial:#a15c07; --partial-soft:#fdf3e2; --ok:#1d7a46; --ok-soft:#e5f4ea;
+  --serif:"Source Serif 4",Georgia,serif; --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1520; --panel:#161e2c; --ink:#e7ecf4; --ink2:#a5afc0; --line:#2a3446;
+  --accent:#7fb0ef; --accent-soft:#1b2b44;
+  --gap:#f2867c; --gap-soft:#3a1d1c; --partial:#e8b25c; --partial-soft:#3a2c15; --ok:#6fd39b; --ok-soft:#173326; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1520; --panel:#161e2c; --ink:#e7ecf4; --ink2:#a5afc0; --line:#2a3446;
+  --accent:#7fb0ef; --accent-soft:#1b2b44;
+  --gap:#f2867c; --gap-soft:#3a1d1c; --partial:#e8b25c; --partial-soft:#3a2c15; --ok:#6fd39b; --ok-soft:#173326; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header h1{font-family:var(--serif);font-size:clamp(22px,3.2vw,30px);margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:4px 0 0;color:var(--ink2);max-width:70ch}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:18px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel h2{font-family:var(--serif);font-size:18px;margin:0}
+.sticky{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:860px){.sticky{position:static}}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+@media (max-width:480px){.fields{grid-template-columns:1fr}}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--ink2);font-weight:500}
+select,input[type=text]{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 8px;width:100%}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;user-select:none}
+.chip input{accent-color:var(--accent);margin:0}
+.chip:has(input:checked){background:var(--accent-soft);border-color:var(--accent)}
+.sub{font-size:12px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin:0}
+.q{display:flex;flex-direction:column;gap:6px;padding-block:10px;border-top:1px solid var(--line)}
+.q:first-of-type{border-top:0}
+.q .qn{font-weight:600}
+.q .qt{color:var(--ink2);font-size:13px}
+.scale{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.scale button{font:inherit;font-size:11px;line-height:1.25;text-align:left;background:var(--panel);color:var(--ink2);border:1px solid var(--line);border-radius:6px;padding:6px;cursor:pointer;min-height:44px}
+.scale button[aria-pressed=true]{background:var(--accent);color:var(--panel);border-color:var(--accent)}
+@media (max-width:520px){.scale{grid-template-columns:1fr}.scale button{min-height:0}}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:10px}
+.kpi .v{font-family:var(--serif);font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi .l{font-size:11.5px;color:var(--ink2)}
+@media (max-width:480px){.kpis{grid-template-columns:1fr}}
+.meter{height:8px;border-radius:99px;background:var(--line);position:relative;overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:99px}
+.meter b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.factors{display:flex;flex-direction:column;gap:4px;font-size:12.5px}
+.factor{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:8px;align-items:center}
+.bar{height:8px;position:relative;background:transparent}
+.bar span{position:absolute;top:0;bottom:0;border-radius:3px}
+.bar::before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--line)}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+.tbl{overflow-x:auto}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.pill.Gap{background:var(--gap-soft);color:var(--gap)}.pill.Partial{background:var(--partial-soft);color:var(--partial)}.pill.Compliant{background:var(--ok-soft);color:var(--ok)}
+tr.Gap td:first-child{box-shadow:inset 3px 0 0 var(--gap)}tr.Partial td:first-child{box-shadow:inset 3px 0 0 var(--partial)}tr.Compliant td:first-child{box-shadow:inset 3px 0 0 var(--ok)}
+.cfr{font-family:var(--mono);font-size:11px;color:var(--ink2);display:block;margin-top:2px}
+details{font-size:12.5px;color:var(--ink2)}
+details summary{cursor:pointer;color:var(--accent);font-weight:500}
+.note{font-size:12px;color:var(--ink2);border-top:1px solid var(--line);padding-top:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button.btn{font:inherit;font-weight:600;font-size:13px;background:var(--accent);color:var(--panel);border:0;border-radius:6px;padding:8px 12px;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+#copied{font-size:12px;color:var(--ok)}
+textarea#rep{width:100%;min-height:140px;font-family:var(--mono);font-size:11px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px}
+@media (prefers-reduced-motion:no-preference){.meter i{transition:width .3s ease}.bar span{transition:all .25s ease}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Thesis prototype · HHS OCR breach data 2023–2026 · n = 2,915</div>
+    <h1>Healthcare Governance Risk Auditor</h1>
+    <p>Describe an organisation and rate its security controls. The model estimates how severe a breach would be if one happened, and the rules base turns control gaps into prioritised findings mapped to HIPAA and NIST CSF 2.0. The form opens with an example women's health clinic.</p>
+  </header>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="h-in">
+      <h2 id="h-in">Organisation profile</h2>
+      <div class="fields">
+        <label class="f" for="org">Organisation name<input type="text" id="org" value="Example Women's Health Clinic (sample)"></label>
+        <label class="f" for="etype">Entity type<select id="etype"><option>Healthcare Provider</option><option>Health Plan</option><option>Business Associate</option><option>Healthcare Clearing House</option></select></label>
+        <label class="f" for="spec">Specialty<select id="spec"><option>General / other</option><option selected>Women's health</option><option>Behavioral health</option></select></label>
+        <label class="f" for="region">US region (South for non-US)<select id="region"><option>South</option><option>Northeast</option><option>Midwest</option><option>West</option></select></label>
+      </div>
+      <p class="sub">Where ePHI is stored</p>
+      <div class="checks" id="locs"></div>
+      <p class="sub">Operations and scenario</p>
+      <div class="checks">
+        <label class="chip"><input type="checkbox" id="vendors" checked>Vendors handle our ePHI</label>
+        <label class="chip"><input type="checkbox" id="mails" checked>We mail or email PHI externally</label>
+        <label class="chip"><input type="checkbox" id="repeat">We have had a reportable breach</label>
+        <label class="chip"><input type="checkbox" id="hack" checked>Scenario: hacking incident</label>
+        <label class="chip"><input type="checkbox" id="vinc">Scenario: incident happens at a vendor</label>
+      </div>
+      <h2>Governance questionnaire</h2>
+      <div id="qs"></div>
+    </section>
+
+    <section class="panel sticky" aria-labelledby="h-out" aria-live="polite">
+      <h2 id="h-out">Audit result</h2>
+      <div class="kpis">
+        <div class="kpi"><div class="v" id="k-p">–</div><div class="l">chance a breach would affect 10,000+ people</div></div>
+        <div class="kpi"><div class="v" id="k-m">–</div><div class="l">control maturity</div></div>
+        <div class="kpi"><div class="v" id="k-g">–</div><div class="l">controls with a gap</div></div>
+      </div>
+      <div>
+        <div class="meter" aria-hidden="true"><i id="m-p"></i><b id="m-b"></b></div>
+        <div class="l" style="font-size:11.5px;color:var(--ink2);margin-top:4px">Bar = this organisation. Black tick = average of all 2023–2026 breaches (<span id="base"></span>).</div>
+      </div>
+      <div>
+        <p class="sub">What moves the severity estimate</p>
+        <div class="factors" id="factors"></div>
+      </div>
+      <div>
+        <p class="sub">Prioritised findings</p>
+        <div class="tbl"><table><thead><tr><th>Control</th><th>Status</th><th style="text-align:right">Priority</th></tr></thead><tbody id="find"></tbody></table></div>
+      </div>
+      <div class="row"><button class="btn" id="copy">Copy audit report</button><span id="copied" hidden>Copied</span></div>
+      <textarea id="rep" readonly hidden aria-label="Audit report text"></textarea>
+      <p class="note">Severity is estimated by a logistic regression (cross-validated ROC-AUC 0.71) trained on HHS OCR breach reports. It describes how large a breach tends to be <em>if</em> one occurs, not whether one will occur. Research prototype; not a compliance certification or legal advice.</p>
+    </section>
+  </div>
+</div>
+
+<script>
+const M = {"features": ["type_Business_Associate", "type_Health_Plan", "type_Healthcare_Clearing_House", "hacking", "ba_present", "n_locations", "repeat_entity", "loc_network_server", "loc_email", "loc_emr", "loc_desktop", "loc_laptop", "loc_paper", "loc_portable", "loc_other", "spec_Behavioral_and_developmental_health", "spec_Womens_health", "region_Midwest", "region_Northeast", "region_West"], "mean": [0.178731, 0.107033, 0.002401, 0.824357, 0.343396, 1.043225, 0.126587, 0.679588, 0.217496, 0.041509, 0.01235, 0.011321, 0.051115, 0.006518, 0.023328, 0.038765, 0.009605, 0.230189, 0.207547, 0.206518], "scale": [0.383127, 0.309155, 0.048945, 0.380516, 0.474842, 0.240464, 0.332509, 0.466635, 0.412543, 0.199465, 0.110442, 0.105795, 0.220232, 0.080471, 0.150942, 0.193034, 0.097536, 0.420954, 0.405551, 0.404807], "coef": [0.488371, -0.055632, 0.01578, 0.440777, -0.557843, -0.016128, 0.075762, 0.315598, -0.275283, -0.0601, -0.049721, -0.007455, -0.074524, -0.090704, 0.029138, -0.017497, 0.012818, -0.06553, -0.113923, -0.084834], "intercept": -0.099752, "base_rate": 0.4148};
+const KB = {"_about": "Rules knowledge base linking data-driven breach risk drivers to HIPAA Security/Privacy Rule provisions, NIST CSF 2.0 categories and audit questions. Built for the thesis 'From Breach Data to Audit Intelligence'. Evidence lines cite the thesis analysis (HHS OCR breach portal, 2023-2026). Proposed HIPAA Security Rule changes (NPRM, Jan 2025) are noted where relevant and are not final law.", "controls": [{"id": "C1", "name": "Enterprise risk analysis", "question": "When did your organisation last complete an accurate, organisation-wide security risk analysis covering every system that stores ePHI?", "options": ["Never / don't know", "More than 2 years ago", "1-2 years ago", "Within the last 12 months", "Within 12 months and updated after every major change"], "hipaa": "45 CFR 164.308(a)(1)(ii)(A) risk analysis; 164.308(a)(1)(ii)(B) risk management", "nist": "ID.RA Risk Assessment; GV.RM Risk Management Strategy", "drivers": ["network_server", "hacking", "vendor", "email", "general"], "evidence": "Missing or inadequate risk analysis is the violation OCR cites most often in its enforcement actions, yet only 0.5% of closed breach reports mention a risk analysis as a corrective step."}, {"id": "C2", "name": "Multi-factor authentication", "question": "Is multi-factor authentication enforced for email, remote access (VPN/RDP) and all administrator accounts?", "options": ["No", "Planned only", "For some systems", "For email and remote access", "Everywhere, including admin and vendor accounts"], "hipaa": "45 CFR 164.312(d) person or entity authentication; 164.308(a)(5)(ii)(D) password management (MFA proposed as required in the 2025 NPRM)", "nist": "PR.AA Identity Management, Authentication and Access Control", "drivers": ["email", "hacking", "network_server"], "evidence": "Hacking/IT incidents are 82.4% of breaches and email is involved in 21.7%, but only 1.4% of closed cases report adopting MFA afterwards."}, {"id": "C3", "name": "Phishing and security awareness training", "question": "How often does your workforce receive phishing and security awareness training, including simulated phishing tests?", "options": ["Never", "Only at hiring", "Annually", "Annually plus phishing simulations", "Quarterly or more, with simulations and tracked results"], "hipaa": "45 CFR 164.308(a)(5)(i) security awareness and training", "nist": "PR.AT Awareness and Training", "drivers": ["email", "misdirected", "insider"], "evidence": "Training is the most common post-breach step (32.9% of closed cases; 57.5% after phishing), which suggests it is often adopted reactively rather than before an incident."}, {"id": "C4", "name": "Encryption of ePHI at rest and in transit", "question": "Is ePHI encrypted on servers, databases, backups, laptops and in email transmission?", "options": ["No", "Some laptops only", "Devices and transmission", "Servers, devices and transmission", "Everywhere, with managed keys"], "hipaa": "45 CFR 164.312(a)(2)(iv) encryption and decryption; 164.312(e)(1) transmission security (encryption proposed as required in the 2025 NPRM)", "nist": "PR.DS Data Security", "drivers": ["network_server", "device", "email"], "evidence": "Network servers hold the breached data in 68% of breaches and raise the odds of a breach affecting 10,000 or more people; encryption is mentioned in only 1.1% of closed cases."}, {"id": "C5", "name": "Vendor (business associate) risk management", "question": "Do you hold a current business associate agreement with every vendor that touches ePHI, and do you assess their security at least yearly?", "options": ["No inventory of vendors", "BAAs for some vendors", "BAAs for all vendors", "BAAs plus security questionnaire at onboarding", "BAAs plus annual security assessment and right to audit"], "hipaa": "45 CFR 164.308(b)(1) business associate contracts; 164.314(a) BA contract requirements", "nist": "GV.SC Cybersecurity Supply Chain Risk Management", "drivers": ["vendor"], "evidence": "34.3% of breaches involve a business associate, and when vendors file themselves they are 3.6 times more likely to report a breach of 10,000 or more people; vendor-management steps appear in only 0.5% of closed cases."}, {"id": "C6", "name": "Access control and least privilege", "question": "Are user accounts unique, role-based, reviewed regularly and removed promptly when staff leave?", "options": ["Shared accounts in use", "Unique accounts, no reviews", "Role-based access", "Role-based with annual review", "Role-based, quarterly review, automated deprovisioning"], "hipaa": "45 CFR 164.312(a)(1) access control; 164.308(a)(3) workforce security; 164.308(a)(4) information access management", "nist": "PR.AA Identity Management, Authentication and Access Control", "drivers": ["insider", "network_server", "emr"], "evidence": "Unauthorized access/disclosure incidents, which include insider misuse, make up 15.6% of breaches; access-control changes are reported in only 1.3% of closed cases."}, {"id": "C7", "name": "Audit logging and monitoring", "question": "Do you log and actively review access to systems containing ePHI (e.g. SIEM, alerting, 24/7 monitoring)?", "options": ["No logging", "Logs kept, never reviewed", "Reviewed after incidents", "Regular manual review", "Continuous monitoring with alerts"], "hipaa": "45 CFR 164.312(b) audit controls; 164.308(a)(1)(ii)(D) information system activity review", "nist": "DE.CM Continuous Monitoring; DE.AE Adverse Event Analysis", "drivers": ["hacking", "network_server", "insider"], "evidence": "Monitoring and logging improvements appear in just 0.1% of closed cases, despite hacking dominating the breach record."}, {"id": "C8", "name": "Endpoint protection and patching", "question": "Are all endpoints and servers protected by managed anti-malware/EDR and patched on a defined schedule?", "options": ["No", "Basic antivirus only", "Antivirus plus ad-hoc patching", "EDR plus monthly patching", "EDR, critical patches within 14 days, tracked"], "hipaa": "45 CFR 164.308(a)(5)(ii)(B) protection from malicious software; 164.308(a)(1)(ii)(B) risk management", "nist": "PR.PS Platform Security; DE.CM Continuous Monitoring", "drivers": ["hacking", "network_server", "ransomware"], "evidence": "Ransomware is named in 20.4% of described cases; endpoint/EDR and patching measures together appear in under 1% of closed cases."}, {"id": "C9", "name": "Backup and recovery (ransomware resilience)", "question": "Do you keep offline or immutable backups of ePHI systems and test restoring them?", "options": ["No backups", "Online backups only", "Offline backups, untested", "Offline/immutable backups, tested yearly", "Immutable backups, tested quarterly, documented recovery plan"], "hipaa": "45 CFR 164.308(a)(7) contingency plan (data backup, disaster recovery)", "nist": "RC.RP Incident Recovery Plan Execution; PR.DS Data Security", "drivers": ["ransomware", "hacking"], "evidence": "Ransomware cases rarely report backup or recovery improvements (0.2%)."}, {"id": "C10", "name": "Incident response plan", "question": "Do you have a written, tested incident response plan that covers breach notification within 60 days?", "options": ["No plan", "Informal plan", "Written plan, never tested", "Written and tested yearly", "Tested yearly, includes vendors and notification workflow"], "hipaa": "45 CFR 164.308(a)(6) security incident procedures; 164.404-164.410 breach notification", "nist": "RS.MA Incident Management; RS.CO Incident Response Reporting", "drivers": ["general", "hacking", "vendor"], "evidence": "Placeholder counts (500/501 individuals) appear in 4.4% of filings, showing organisations often report before they know the scope of a breach."}, {"id": "C11", "name": "Mail and disclosure safeguards", "question": "Are there checks (address verification, two-person review, data-loss prevention) before PHI is mailed or emailed outside the organisation?", "options": ["No checks", "Staff discretion", "Written procedure", "Procedure plus spot checks", "Automated DLP and verification"], "hipaa": "45 CFR 164.530(c) administrative, technical and physical safeguards; 164.502(b) minimum necessary", "nist": "PR.DS Data Security; PR.AT Awareness and Training", "drivers": ["misdirected"], "evidence": "Misdirected mail or disclosure accounts for 5.7% of described cases."}, {"id": "C12", "name": "Device and media security", "question": "Are laptops, portable devices and paper records tracked, encrypted or locked, and securely disposed of?", "options": ["No controls", "Some policy", "Encryption for laptops", "Encryption plus asset inventory", "Inventory, encryption, remote wipe and certified disposal"], "hipaa": "45 CFR 164.310(d)(1) device and media controls; 164.310(c) workstation security", "nist": "PR.DS Data Security; ID.AM Asset Management", "drivers": ["device"], "evidence": "Theft, loss and improper disposal together are now only about 2% of breaches, showing the effect of device encryption since the 2010s."}], "drivers": {"network_server": "Data stored on network servers", "hacking": "Exposure to hacking / IT incidents", "vendor": "Reliance on vendors (business associates)", "email": "Email used for ePHI", "ransomware": "Ransomware exposure", "insider": "Workforce access to ePHI", "misdirected": "Mailing or emailing PHI externally", "device": "Laptops, portable devices or paper records", "emr": "Electronic medical record system", "general": "General governance"}};
+const W = {hacking:.82,network_server:.68,vendor:.34,email:.22,ransomware:.20,insider:.16,misdirected:.06,emr:.04,device:.02,general:.30};
+const LOCS = {"Network server":"loc_network_server","Email":"loc_email","Electronic medical record":"loc_emr","Desktop computer":"loc_desktop","Laptop":"loc_laptop","Paper/films":"loc_paper","Other portable device":"loc_portable"};
+const LBL = {loc_network_server:"ePHI on network servers",loc_email:"ePHI in email",loc_emr:"ePHI in EMR",loc_desktop:"Desktops",loc_laptop:"Laptops",loc_paper:"Paper records",loc_portable:"Portable devices",hacking:"Hacking scenario",ba_present:"Incident at a vendor",type_Business_Associate:"Is a business associate",type_Health_Plan:"Is a health plan",type_Healthcare_Clearing_House:"Is a clearinghouse",n_locations:"Number of data locations",repeat_entity:"Previously breached",spec_Womens_health:"Women's health provider",spec_Behavioral_and_developmental_health:"Behavioral health provider",region_Northeast:"Northeast",region_Midwest:"Midwest",region_West:"West"};
+const $ = id => document.getElementById(id);
+const answers = {C1:0,C2:1,C3:3,C4:2,C5:1,C6:2,C7:1,C8:2,C9:1,C10:1,C11:2,C12:3}; // sample answers
+
+$("locs").innerHTML = Object.keys(LOCS).map((k,i)=>`<label class="chip"><input type="checkbox" id="loc${i}" value="${k}" ${["Network server","Email","Electronic medical record"].includes(k)?"checked":""}>${k}</label>`).join("");
+$("qs").innerHTML = KB.controls.map(c=>`<div class="q"><div class="qn">${c.name}</div><div class="qt">${c.question}</div><div class="scale" role="group" aria-label="${c.name}">${c.options.map((o,i)=>`<button type="button" data-c="${c.id}" data-v="${i}" aria-pressed="${answers[c.id]===i}">${o}</button>`).join("")}</div></div>`).join("");
+$("qs").addEventListener("click",e=>{const b=e.target.closest("button[data-c]");if(!b)return;answers[b.dataset.c]=+b.dataset.v;
+  b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));run();});
+document.querySelectorAll("input,select").forEach(el=>el.addEventListener("input",run));
+
+function profile(){return{et:$("etype").value,spec:$("spec").value,region:$("region").value,
+  locs:[...document.querySelectorAll("#locs input:checked")].map(x=>x.value),vendors:$("vendors").checked,mails:$("mails").checked,
+  repeat:$("repeat").checked,hack:$("hack").checked,vinc:$("vinc").checked};}
+function features(p){const x={};M.features.forEach(f=>x[f]=0);
+  const t={"Business Associate":"type_Business_Associate","Health Plan":"type_Health_Plan","Healthcare Clearing House":"type_Healthcare_Clearing_House"}[p.et]; if(t)x[t]=1;
+  if(p.region!=="South")x["region_"+p.region]=1;
+  p.locs.forEach(l=>x[LOCS[l]]=1); x.n_locations=Math.max(1,p.locs.length);
+  x.ba_present=+p.vinc; x.hacking=+p.hack; x.repeat_entity=+p.repeat;
+  if(p.spec==="Women's health")x.spec_Womens_health=1; if(p.spec==="Behavioral health")x.spec_Behavioral_and_developmental_health=1; return x;}
+function predict(x){let z=M.intercept;const parts=[];M.features.forEach((f,i)=>{const s=(x[f]-M.mean[i])/M.scale[i]*M.coef[i];z+=s;
+  const s0=(0-M.mean[i])/M.scale[i]*M.coef[i]; if(x[f]!==0)parts.push([LBL[f]||f,s-s0]);});
+  return{p:1/(1+Math.exp(-z)),parts:parts.filter(d=>Math.abs(d[1])>.03).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,6)};}
+function drivers(p){const d=new Set(["general","hacking","ransomware","insider"]);
+  if(p.locs.includes("Network server"))d.add("network_server"); if(p.locs.includes("Email"))d.add("email");
+  if(p.locs.includes("Electronic medical record"))d.add("emr");
+  if(p.locs.some(l=>["Laptop","Paper/films","Other portable device","Desktop computer"].includes(l)))d.add("device");
+  if(p.vendors)d.add("vendor"); if(p.mails)d.add("misdirected"); return d;}
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let last=null;
+function run(){const p=profile(),{p:prob,parts}=predict(features(p)),d=drivers(p);
+  const rows=KB.controls.map(c=>{const lv=answers[c.id]||0,gap=(4-lv)/4,m=c.drivers.filter(x=>d.has(x));
+    const rel=m.length?1-m.reduce((a,x)=>a*(1-W[x]),1):0;
+    return{...c,lv,status:lv>=3?"Compliant":lv===2?"Partial":"Gap",prio:Math.round(100*gap*(.2+.8*rel)*(.5+prob)/1.5*10)/10};}).sort((a,b)=>b.prio-a.prio);
+  const mat=Math.round(KB.controls.reduce((a,c)=>a+(answers[c.id]||0),0)/(4*KB.controls.length)*100);
+  $("k-p").textContent=Math.round(prob*100)+"%"; $("k-m").textContent=mat+"%"; $("k-g").textContent=rows.filter(r=>r.status==="Gap").length;
+  $("m-p").style.width=(prob*100)+"%"; $("m-b").style.left=(M.base_rate*100)+"%"; $("base").textContent=Math.round(M.base_rate*100)+"%";
+  const mx=Math.max(.5,...parts.map(x=>Math.abs(x[1])));
+  $("factors").innerHTML=parts.length?parts.map(([n,v])=>`<div class="factor"><span>${esc(n)} <span style="color:var(--ink2)">(${v>0?"raises":"lowers"})</span></span><div class="bar"><span style="${v>0?`left:50%;width:${v/mx*50}%;background:var(--gap)`:`right:50%;width:${-v/mx*50}%;background:var(--accent)`}"></span></div></div>`).join(""):'<span style="color:var(--ink2)">Baseline profile: no strong factors.</span>';
+  $("find").innerHTML=rows.map(r=>`<tr class="${r.status}"><td><strong>${esc(r.name)}</strong><span class="cfr">${esc(r.hipaa)}</span>${r.status!=="Compliant"?`<details><summary>Why it matters</summary><p>${esc(r.evidence)}<br><span class="cfr">NIST CSF 2.0: ${esc(r.nist)}</span><br>Now: ${esc(r.options[r.lv])}</p></details>`:""}</td><td><span class="pill ${r.status}">${r.status}</span></td><td class="num">${r.prio.toFixed(1)}</td></tr>`).join("");
+  last={p,prob,mat,rows,parts};}
+$("copy").addEventListener("click",async()=>{if(!last)return;const {prob,mat,rows,parts}=last;
+  const t=[`GOVERNANCE RISK AUDIT: ${$("org").value}`,`Chance a breach would affect 10,000+ people: ${Math.round(prob*100)}% (average ${Math.round(M.base_rate*100)}%)`,`Control maturity: ${mat}%`,"","Severity drivers:",...parts.map(([n,v])=>`- ${n}: ${v>0?"raises":"lowers"} risk`),"","Findings (highest priority first):",
+   ...rows.filter(r=>r.status!=="Compliant").map((r,i)=>`${i+1}. ${r.name} [${r.status}, priority ${r.prio}]\n   Now: ${r.options[r.lv]}\n   HIPAA: ${r.hipaa}\n   NIST CSF 2.0: ${r.nist}\n   Evidence: ${r.evidence}`),"","Research prototype; not legal advice."].join("\n");
+  const ta=$("rep");ta.value=t;
+  try{await navigator.clipboard.writeText(t);$("copied").hidden=false;setTimeout(()=>$("copied").hidden=true,1800);}catch(e){ta.hidden=false;ta.select();}});
+run();
+</script>
+
+</body></html>
