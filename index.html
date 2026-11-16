@@ -1,194 +1,1119 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Healthcare Governance Risk Auditor</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SurgiTwin Digital Twin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* Layout: audit worksheet — profile + questionnaire on the left, live findings ledger on the right; stacks on phones */
 :root{
-  --bg:#f6f7f9; --panel:#ffffff; --ink:#14213a; --ink2:#4b5568; --line:#dde1e8;
-  --accent:#1f5fa8; --accent-soft:#e6eefa;
-  --gap:#b42318; --gap-soft:#fdecea; --partial:#a15c07; --partial-soft:#fdf3e2; --ok:#1d7a46; --ok-soft:#e5f4ea;
-  --serif:"Source Serif 4",Georgia,serif; --sans:"IBM Plex Sans",system-ui,-apple-system,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  /* Layout: live 3D twin on the left, operational panels on the right; stacks to one column on phones */
+  --bg:#0a1317;
+  --panel:#0f1c22;
+  --panel-2:#14252c;
+  --line:#21363e;
+  --ink:#e2edf0;
+  --muted:#87a1a9;
+  --accent:#6cc6ff;
+  --ok:#56d08a;
+  --warn:#f3b64a;
+  --crit:#ff5f57;
+  --display:'IBM Plex Sans Condensed','Arial Narrow',sans-serif;
+  --body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0f1520; --panel:#161e2c; --ink:#e7ecf4; --ink2:#a5afc0; --line:#2a3446;
-  --accent:#7fb0ef; --accent-soft:#1b2b44;
-  --gap:#f2867c; --gap-soft:#3a1d1c; --partial:#e8b25c; --partial-soft:#3a2c15; --ok:#6fd39b; --ok-soft:#173326; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0f1520; --panel:#161e2c; --ink:#e7ecf4; --ink2:#a5afc0; --line:#2a3446;
-  --accent:#7fb0ef; --accent-soft:#1b2b44;
-  --gap:#f2867c; --gap-soft:#3a1d1c; --partial:#e8b25c; --partial-soft:#3a2c15; --ok:#6fd39b; --ok-soft:#173326; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;margin:0;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
-.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
-header h1{font-family:var(--serif);font-size:clamp(22px,3.2vw,30px);margin:0;text-wrap:balance;letter-spacing:-.01em}
-header p{margin:4px 0 0;color:var(--ink2);max-width:70ch}
-.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
-.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:18px;align-items:start}
-@media (max-width:860px){.grid{grid-template-columns:1fr}}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
-.panel h2{font-family:var(--serif);font-size:18px;margin:0}
-.sticky{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
-@media (max-width:860px){.sticky{position:static}}
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
-@media (max-width:480px){.fields{grid-template-columns:1fr}}
-label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--ink2);font-weight:500}
-select,input[type=text]{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:7px 8px;width:100%}
-select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.checks{display:flex;flex-wrap:wrap;gap:6px}
-.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;user-select:none}
-.chip input{accent-color:var(--accent);margin:0}
-.chip:has(input:checked){background:var(--accent-soft);border-color:var(--accent)}
-.sub{font-size:12px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin:0}
-.q{display:flex;flex-direction:column;gap:6px;padding-block:10px;border-top:1px solid var(--line)}
-.q:first-of-type{border-top:0}
-.q .qn{font-weight:600}
-.q .qt{color:var(--ink2);font-size:13px}
-.scale{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
-.scale button{font:inherit;font-size:11px;line-height:1.25;text-align:left;background:var(--panel);color:var(--ink2);border:1px solid var(--line);border-radius:6px;padding:6px;cursor:pointer;min-height:44px}
-.scale button[aria-pressed=true]{background:var(--accent);color:var(--panel);border-color:var(--accent)}
-@media (max-width:520px){.scale{grid-template-columns:1fr}.scale button{min-height:0}}
-.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.kpi{border:1px solid var(--line);border-radius:8px;padding:10px}
-.kpi .v{font-family:var(--serif);font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
-.kpi .l{font-size:11.5px;color:var(--ink2)}
-@media (max-width:480px){.kpis{grid-template-columns:1fr}}
-.meter{height:8px;border-radius:99px;background:var(--line);position:relative;overflow:hidden}
-.meter i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:99px}
-.meter b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
-.factors{display:flex;flex-direction:column;gap:4px;font-size:12.5px}
-.factor{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:8px;align-items:center}
-.bar{height:8px;position:relative;background:transparent}
-.bar span{position:absolute;top:0;bottom:0;border-radius:3px}
-.bar::before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--line)}
-table{border-collapse:collapse;width:100%;font-size:12.5px}
-.tbl{overflow-x:auto}
-th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}
-td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
-td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
-.pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap}
-.pill.Gap{background:var(--gap-soft);color:var(--gap)}.pill.Partial{background:var(--partial-soft);color:var(--partial)}.pill.Compliant{background:var(--ok-soft);color:var(--ok)}
-tr.Gap td:first-child{box-shadow:inset 3px 0 0 var(--gap)}tr.Partial td:first-child{box-shadow:inset 3px 0 0 var(--partial)}tr.Compliant td:first-child{box-shadow:inset 3px 0 0 var(--ok)}
-.cfr{font-family:var(--mono);font-size:11px;color:var(--ink2);display:block;margin-top:2px}
-details{font-size:12.5px;color:var(--ink2)}
-details summary{cursor:pointer;color:var(--accent);font-weight:500}
-.note{font-size:12px;color:var(--ink2);border-top:1px solid var(--line);padding-top:10px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-button.btn{font:inherit;font-weight:600;font-size:13px;background:var(--accent);color:var(--panel);border:0;border-radius:6px;padding:8px 12px;cursor:pointer}
-button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
-#copied{font-size:12px;color:var(--ok)}
-textarea#rep{width:100%;min-height:140px;font-family:var(--mono);font-size:11px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px}
-@media (prefers-reduced-motion:no-preference){.meter i{transition:width .3s ease}.bar span{transition:all .25s ease}}
-</style>
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--body);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-<div class="wrap">
+.app{display:grid;grid-template-rows:auto 1fr;height:100%}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brand h1{font:600 19px/1 var(--display);letter-spacing:.02em;margin:0}
+.brand h1 b{color:var(--accent);font-weight:600}
+.brand small{color:var(--muted);font-size:12px}
+.sim-badge{font:500 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 45%,transparent);padding:4px 6px;border-radius:4px}
+
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:3px;gap:2px}
+.seg button{background:none;border:0;padding:6px 11px;border-radius:6px;cursor:pointer;color:var(--muted);font-weight:500;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--panel-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.seg button:hover{color:var(--ink)}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{background:var(--panel-2);border:1px solid var(--line);padding:7px 12px;border-radius:8px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.fault{border-color:color-mix(in srgb,var(--crit) 55%,transparent);color:#ffb3ae}
+.btn.fix{border-color:color-mix(in srgb,var(--ok) 55%,transparent);color:#a9efc6}
+
+main{display:grid;grid-template-columns:minmax(0,1fr) 410px;min-height:0}
+#view{position:relative;min-height:0;overflow:hidden;background:#0c171c}
+#view canvas{display:block;width:100%;height:100%;touch-action:none}
+#tags{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.tag{position:absolute;left:0;top:0;font:500 11px/1.25 var(--mono);background:rgba(8,16,20,.82);border:1px solid var(--line);border-left:3px solid var(--ok);padding:3px 6px;border-radius:4px;white-space:nowrap;color:var(--ink);will-change:transform}
+.tag.warn{border-left-color:var(--warn)}
+.tag.crit{border-left-color:var(--crit);background:rgba(50,12,12,.88)}
+.tag.idle{border-left-color:var(--muted)}
+.tag span{color:var(--muted)}
+.hud{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.chip{display:inline-flex;align-items:center;gap:8px;background:rgba(8,16,20,.85);border:1px solid var(--line);padding:6px 10px;border-radius:8px;font:500 12px/1.2 var(--mono)}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}
+.chip.live .dot{animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.view-tools{position:absolute;right:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.view-tools .btn{background:rgba(8,16,20,.85);font-size:12.5px;padding:6px 10px}
+.view-tools .btn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.hint{position:absolute;left:12px;bottom:10px;color:var(--muted);font-size:11.5px;pointer-events:none;background:rgba(8,16,20,.6);padding:3px 7px;border-radius:5px}
+
+aside{border-left:1px solid var(--line);overflow:auto;background:var(--bg);padding:12px;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+.card h2{font:600 12.5px/1 var(--display);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card h2 em{font:500 11px var(--mono);text-transform:none;letter-spacing:0;font-style:normal;color:var(--muted)}
+.num{font-variant-numeric:tabular-nums;font-family:var(--mono)}
+
+.phases{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:8px 0 6px}
+.phase{height:6px;border-radius:3px;background:var(--line);position:relative;overflow:hidden}
+.phase i{position:absolute;inset:0;width:0;background:var(--accent)}
+.phase-names{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;font-size:10.5px;color:var(--muted);line-height:1.2}
+.phase-names .on{color:var(--ink);font-weight:600}
+.proc-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.proc-head strong{font:600 16px var(--display)}
+
+.alert{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:8px;background:color-mix(in srgb,var(--ok) 9%,var(--panel));border:1px solid color-mix(in srgb,var(--ok) 30%,transparent)}
+.alert.warn{background:color-mix(in srgb,var(--warn) 10%,var(--panel));border-color:color-mix(in srgb,var(--warn) 40%,transparent)}
+.alert.crit{background:color-mix(in srgb,var(--crit) 12%,var(--panel));border-color:color-mix(in srgb,var(--crit) 45%,transparent)}
+.alert .sev{flex:none;width:10px;height:10px;border-radius:2px;margin-top:5px;background:var(--ok)}
+.alert.warn .sev{background:var(--warn)} .alert.crit .sev{background:var(--crit)}
+.alert b{display:block;font-weight:600}
+.alert p{margin:2px 0 0;color:var(--muted);font-size:12.5px}
+
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tile{background:var(--panel-2);border-radius:8px;padding:8px}
+.tile .k{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.tile .v{font:500 19px/1.15 var(--mono);font-variant-numeric:tabular-nums;margin-top:2px}
+.tile .u{font-size:10.5px;color:var(--muted);font-family:var(--mono)}
+.tile.hr .v{color:#7ef0a8} .tile.sp .v{color:#7fd3ff}
+#ecg{width:100%;height:64px;display:block;margin-top:8px;background:#071013;border-radius:6px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{font:500 10.5px var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:0 6px 6px 0}
+td{padding:7px 6px 7px 0;border-top:1px solid var(--line);vertical-align:middle}
+td:last-child,th:last-child{padding-right:0}
+td .sub{display:block;color:var(--muted);font-size:11px}
+.pill{display:inline-block;font:500 10.5px/1 var(--mono);padding:3px 6px;border-radius:999px;background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok);white-space:nowrap}
+.pill.warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.pill.crit{background:color-mix(in srgb,var(--crit) 20%,transparent);color:#ff8a84}
+.pill.idle{background:var(--line);color:var(--muted)}
+canvas.spark{width:70px;height:22px;display:block}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.bar.warn i{background:var(--warn)} .bar.crit i{background:var(--crit)}
+
+.log{list-style:none;margin:0;padding:0;font-size:12px;max-height:210px;overflow:auto}
+.log li{display:grid;grid-template-columns:62px 8px 1fr;gap:8px;align-items:baseline;padding:5px 0;border-top:1px solid var(--line)}
+.log li:first-child{border-top:0}
+.log time{font-family:var(--mono);color:var(--muted);font-size:11px}
+.log .d{width:7px;height:7px;border-radius:50%;background:var(--accent);align-self:center}
+.log .warn .d{background:var(--warn)} .log .crit .d{background:var(--crit)} .log .ok .d{background:var(--ok)}
+
+.health-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center}
+#vibSpark{width:100%;height:56px;display:block;margin:6px 0 10px;background:#071013;border-radius:6px}
+.kv{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:4px 0}
+.kv span:first-child{color:var(--muted)}
+[hidden]{display:none!important}
+
+@media (max-width:900px){
+  .app{display:block;height:auto}
+  main{display:block}
+  #view{height:56vh;min-height:320px}
+  aside{border-left:0;overflow:visible}
+  .brand small{display:none}
+  .view-tools{top:auto;bottom:10px;right:10px}
+  .hint{display:none}
+}
+@media (max-width:420px){
+  .hud .chip.live{display:none}
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  header{padding:10px 12px}
+  aside{padding:10px}
+}
+@media (prefers-reduced-motion:reduce){.chip.live .dot{animation:none}}
+</style>
+</head>
+<body>
+<div class="app">
   <header>
-    <div class="eyebrow">Thesis prototype · HHS OCR breach data 2023–2026 · n = 2,915</div>
-    <h1>Healthcare Governance Risk Auditor</h1>
-    <p>Describe an organisation and rate its security controls. The model estimates how severe a breach would be if one happened, and the rules base turns control gaps into prioritised findings mapped to HIPAA and NIST CSF 2.0. The form opens with an example women's health clinic.</p>
+    <div class="brand">
+      <h1><b>Surgi</b>Twin</h1>
+      <small>Surgical systems digital twin</small>
+      <span class="sim-badge">Simulated data</span>
+    </div>
+    <div class="seg" role="group" aria-label="Twin">
+      <button id="modeOr" aria-pressed="true">Operating room</button>
+      <button id="modeLine" aria-pressed="false">Instrument line</button>
+    </div>
+    <div class="ctrl">
+      <button class="btn" id="playBtn">Pause</button>
+      <div class="seg" role="group" aria-label="Simulation speed" id="speedSeg">
+        <button data-s="1" aria-pressed="true">1×</button>
+        <button data-s="2" aria-pressed="false">2×</button>
+        <button data-s="4" aria-pressed="false">4×</button>
+        <button data-s="8" aria-pressed="false">8×</button>
+      </div>
+      <button class="btn fault" id="faultBtn">Inject fault</button>
+    </div>
   </header>
 
-  <div class="grid">
-    <section class="panel" aria-labelledby="h-in">
-      <h2 id="h-in">Organisation profile</h2>
-      <div class="fields">
-        <label class="f" for="org">Organisation name<input type="text" id="org" value="Example Women's Health Clinic (sample)"></label>
-        <label class="f" for="etype">Entity type<select id="etype"><option>Healthcare Provider</option><option>Health Plan</option><option>Business Associate</option><option>Healthcare Clearing House</option></select></label>
-        <label class="f" for="spec">Specialty<select id="spec"><option>General / other</option><option selected>Women's health</option><option>Behavioral health</option></select></label>
-        <label class="f" for="region">US region (South for non-US)<select id="region"><option>South</option><option>Northeast</option><option>Midwest</option><option>West</option></select></label>
+  <main>
+    <div id="view">
+      <div id="tags"></div>
+      <div class="hud">
+        <div class="chip live"><span class="dot"></span><span id="hudSync">Twin sync 14 ms</span></div>
+        <div class="chip" id="hudMain">Case 00:00</div>
       </div>
-      <p class="sub">Where ePHI is stored</p>
-      <div class="checks" id="locs"></div>
-      <p class="sub">Operations and scenario</p>
-      <div class="checks">
-        <label class="chip"><input type="checkbox" id="vendors" checked>Vendors handle our ePHI</label>
-        <label class="chip"><input type="checkbox" id="mails" checked>We mail or email PHI externally</label>
-        <label class="chip"><input type="checkbox" id="repeat">We have had a reportable breach</label>
-        <label class="chip"><input type="checkbox" id="hack" checked>Scenario: hacking incident</label>
-        <label class="chip"><input type="checkbox" id="vinc">Scenario: incident happens at a vendor</label>
+      <div class="view-tools">
+        <button class="btn" id="xrayBtn" aria-pressed="false">See-through</button>
+        <button class="btn" id="labelBtn" aria-pressed="true">Labels</button>
+        <button class="btn" id="resetBtn">Reset view</button>
       </div>
-      <h2>Governance questionnaire</h2>
-      <div id="qs"></div>
-    </section>
+      <div class="hint">Drag to orbit · scroll or pinch to zoom</div>
+    </div>
 
-    <section class="panel sticky" aria-labelledby="h-out" aria-live="polite">
-      <h2 id="h-out">Audit result</h2>
-      <div class="kpis">
-        <div class="kpi"><div class="v" id="k-p">–</div><div class="l">chance a breach would affect 10,000+ people</div></div>
-        <div class="kpi"><div class="v" id="k-m">–</div><div class="l">control maturity</div></div>
-        <div class="kpi"><div class="v" id="k-g">–</div><div class="l">controls with a gap</div></div>
+    <aside>
+      <!-- OPERATING ROOM PANELS -->
+      <div id="orPanels">
+        <section class="card">
+          <h2>Procedure <em id="caseNo">Case #0142</em></h2>
+          <div class="proc-head"><strong>Robotic cholecystectomy</strong><span class="num" id="caseClock">00:00</span></div>
+          <div class="phases" id="phaseBars"></div>
+          <div class="phase-names" id="phaseNames"></div>
+        </section>
+        <section class="card"><h2>Twin prediction</h2><div id="orAlert"></div></section>
+        <section class="card">
+          <h2>Patient vitals <em>Bed 3 · anaesthesia monitor</em></h2>
+          <div class="tiles">
+            <div class="tile hr"><div class="k">HR</div><div class="v" id="vHr">72</div><div class="u">bpm</div></div>
+            <div class="tile sp"><div class="k">SpO₂</div><div class="v" id="vSp">98</div><div class="u">%</div></div>
+            <div class="tile"><div class="k">NIBP</div><div class="v" id="vBp">118/76</div><div class="u">mmHg</div></div>
+            <div class="tile"><div class="k">EtCO₂</div><div class="v" id="vCo">36</div><div class="u">mmHg</div></div>
+          </div>
+          <canvas id="ecg" width="760" height="128" aria-label="ECG lead II trace"></canvas>
+        </section>
+        <section class="card">
+          <h2>Robot arms <em>4-arm patient cart</em></h2>
+          <table><thead><tr><th>Arm</th><th>State</th><th>Joints</th><th>Motor °C</th><th>N·m</th></tr></thead><tbody id="armRows"></tbody></table>
+        </section>
+        <section class="card">
+          <h2>Instrument registry <em>UDI tracked</em></h2>
+          <table><thead><tr><th>Instrument</th><th>Location</th><th>Life used</th></tr></thead><tbody id="instRows"></tbody></table>
+        </section>
+        <section class="card"><h2>Event log</h2><ul class="log" id="orLog"></ul></section>
       </div>
-      <div>
-        <div class="meter" aria-hidden="true"><i id="m-p"></i><b id="m-b"></b></div>
-        <div class="l" style="font-size:11.5px;color:var(--ink2);margin-top:4px">Bar = this organisation. Black tick = average of all 2023–2026 breaches (<span id="base"></span>).</div>
+
+      <!-- MANUFACTURING LINE PANELS -->
+      <div id="linePanels" hidden>
+        <section class="card">
+          <h2>Line L2 · Forceps &amp; scissors <em id="shiftClock">Shift 00:00:00</em></h2>
+          <div class="tiles">
+            <div class="tile"><div class="k">Output</div><div class="v" id="kThr">0</div><div class="u">parts/hr</div></div>
+            <div class="tile"><div class="k">Yield</div><div class="v" id="kYld">100</div><div class="u">% first pass</div></div>
+            <div class="tile"><div class="k">OEE</div><div class="v" id="kOee">0</div><div class="u">%</div></div>
+            <div class="tile"><div class="k">WIP</div><div class="v" id="kWip">0</div><div class="u">on line</div></div>
+          </div>
+        </section>
+        <section class="card"><h2>Twin prediction</h2><div id="lineAlert"></div></section>
+        <section class="card">
+          <h2>Stations</h2>
+          <table><thead><tr><th>Station</th><th>State</th><th>Utilisation</th><th>Done</th></tr></thead><tbody id="stRows"></tbody></table>
+        </section>
+        <section class="card">
+          <h2>CNC-01 spindle health <em>ISO 10816 vibration</em></h2>
+          <canvas id="vibSpark" width="760" height="112" aria-label="Spindle vibration trend"></canvas>
+          <div class="kv"><span>Vibration (RMS)</span><span class="num" id="cVib">1.8 mm/s</span></div>
+          <div class="kv"><span>Cutting tool wear</span><span class="num" id="cWear">0%</span></div>
+          <div class="bar" id="cWearBar"><i style="width:0%"></i></div>
+          <div class="kv"><span>Predicted tool change</span><span class="num" id="cRul">—</span></div>
+          <div class="kv"><span>Good / rejected</span><span class="num" id="cCounts">0 / 0</span></div>
+        </section>
+        <section class="card"><h2>Event log</h2><ul class="log" id="lineLog"></ul></section>
       </div>
-      <div>
-        <p class="sub">What moves the severity estimate</p>
-        <div class="factors" id="factors"></div>
-      </div>
-      <div>
-        <p class="sub">Prioritised findings</p>
-        <div class="tbl"><table><thead><tr><th>Control</th><th>Status</th><th style="text-align:right">Priority</th></tr></thead><tbody id="find"></tbody></table></div>
-      </div>
-      <div class="row"><button class="btn" id="copy">Copy audit report</button><span id="copied" hidden>Copied</span></div>
-      <textarea id="rep" readonly hidden aria-label="Audit report text"></textarea>
-      <p class="note">Severity is estimated by a logistic regression (cross-validated ROC-AUC 0.71) trained on HHS OCR breach reports. It describes how large a breach tends to be <em>if</em> one occurs, not whether one will occur. Research prototype; not a compliance certification or legal advice.</p>
-    </section>
-  </div>
+    </aside>
+  </main>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
-const M = {"features": ["type_Business_Associate", "type_Health_Plan", "type_Healthcare_Clearing_House", "hacking", "ba_present", "n_locations", "repeat_entity", "loc_network_server", "loc_email", "loc_emr", "loc_desktop", "loc_laptop", "loc_paper", "loc_portable", "loc_other", "spec_Behavioral_and_developmental_health", "spec_Womens_health", "region_Midwest", "region_Northeast", "region_West"], "mean": [0.178731, 0.107033, 0.002401, 0.824357, 0.343396, 1.043225, 0.126587, 0.679588, 0.217496, 0.041509, 0.01235, 0.011321, 0.051115, 0.006518, 0.023328, 0.038765, 0.009605, 0.230189, 0.207547, 0.206518], "scale": [0.383127, 0.309155, 0.048945, 0.380516, 0.474842, 0.240464, 0.332509, 0.466635, 0.412543, 0.199465, 0.110442, 0.105795, 0.220232, 0.080471, 0.150942, 0.193034, 0.097536, 0.420954, 0.405551, 0.404807], "coef": [0.488371, -0.055632, 0.01578, 0.440777, -0.557843, -0.016128, 0.075762, 0.315598, -0.275283, -0.0601, -0.049721, -0.007455, -0.074524, -0.090704, 0.029138, -0.017497, 0.012818, -0.06553, -0.113923, -0.084834], "intercept": -0.099752, "base_rate": 0.4148};
-const KB = {"_about": "Rules knowledge base linking data-driven breach risk drivers to HIPAA Security/Privacy Rule provisions, NIST CSF 2.0 categories and audit questions. Built for the thesis 'From Breach Data to Audit Intelligence'. Evidence lines cite the thesis analysis (HHS OCR breach portal, 2023-2026). Proposed HIPAA Security Rule changes (NPRM, Jan 2025) are noted where relevant and are not final law.", "controls": [{"id": "C1", "name": "Enterprise risk analysis", "question": "When did your organisation last complete an accurate, organisation-wide security risk analysis covering every system that stores ePHI?", "options": ["Never / don't know", "More than 2 years ago", "1-2 years ago", "Within the last 12 months", "Within 12 months and updated after every major change"], "hipaa": "45 CFR 164.308(a)(1)(ii)(A) risk analysis; 164.308(a)(1)(ii)(B) risk management", "nist": "ID.RA Risk Assessment; GV.RM Risk Management Strategy", "drivers": ["network_server", "hacking", "vendor", "email", "general"], "evidence": "Missing or inadequate risk analysis is the violation OCR cites most often in its enforcement actions, yet only 0.5% of closed breach reports mention a risk analysis as a corrective step."}, {"id": "C2", "name": "Multi-factor authentication", "question": "Is multi-factor authentication enforced for email, remote access (VPN/RDP) and all administrator accounts?", "options": ["No", "Planned only", "For some systems", "For email and remote access", "Everywhere, including admin and vendor accounts"], "hipaa": "45 CFR 164.312(d) person or entity authentication; 164.308(a)(5)(ii)(D) password management (MFA proposed as required in the 2025 NPRM)", "nist": "PR.AA Identity Management, Authentication and Access Control", "drivers": ["email", "hacking", "network_server"], "evidence": "Hacking/IT incidents are 82.4% of breaches and email is involved in 21.7%, but only 1.4% of closed cases report adopting MFA afterwards."}, {"id": "C3", "name": "Phishing and security awareness training", "question": "How often does your workforce receive phishing and security awareness training, including simulated phishing tests?", "options": ["Never", "Only at hiring", "Annually", "Annually plus phishing simulations", "Quarterly or more, with simulations and tracked results"], "hipaa": "45 CFR 164.308(a)(5)(i) security awareness and training", "nist": "PR.AT Awareness and Training", "drivers": ["email", "misdirected", "insider"], "evidence": "Training is the most common post-breach step (32.9% of closed cases; 57.5% after phishing), which suggests it is often adopted reactively rather than before an incident."}, {"id": "C4", "name": "Encryption of ePHI at rest and in transit", "question": "Is ePHI encrypted on servers, databases, backups, laptops and in email transmission?", "options": ["No", "Some laptops only", "Devices and transmission", "Servers, devices and transmission", "Everywhere, with managed keys"], "hipaa": "45 CFR 164.312(a)(2)(iv) encryption and decryption; 164.312(e)(1) transmission security (encryption proposed as required in the 2025 NPRM)", "nist": "PR.DS Data Security", "drivers": ["network_server", "device", "email"], "evidence": "Network servers hold the breached data in 68% of breaches and raise the odds of a breach affecting 10,000 or more people; encryption is mentioned in only 1.1% of closed cases."}, {"id": "C5", "name": "Vendor (business associate) risk management", "question": "Do you hold a current business associate agreement with every vendor that touches ePHI, and do you assess their security at least yearly?", "options": ["No inventory of vendors", "BAAs for some vendors", "BAAs for all vendors", "BAAs plus security questionnaire at onboarding", "BAAs plus annual security assessment and right to audit"], "hipaa": "45 CFR 164.308(b)(1) business associate contracts; 164.314(a) BA contract requirements", "nist": "GV.SC Cybersecurity Supply Chain Risk Management", "drivers": ["vendor"], "evidence": "34.3% of breaches involve a business associate, and when vendors file themselves they are 3.6 times more likely to report a breach of 10,000 or more people; vendor-management steps appear in only 0.5% of closed cases."}, {"id": "C6", "name": "Access control and least privilege", "question": "Are user accounts unique, role-based, reviewed regularly and removed promptly when staff leave?", "options": ["Shared accounts in use", "Unique accounts, no reviews", "Role-based access", "Role-based with annual review", "Role-based, quarterly review, automated deprovisioning"], "hipaa": "45 CFR 164.312(a)(1) access control; 164.308(a)(3) workforce security; 164.308(a)(4) information access management", "nist": "PR.AA Identity Management, Authentication and Access Control", "drivers": ["insider", "network_server", "emr"], "evidence": "Unauthorized access/disclosure incidents, which include insider misuse, make up 15.6% of breaches; access-control changes are reported in only 1.3% of closed cases."}, {"id": "C7", "name": "Audit logging and monitoring", "question": "Do you log and actively review access to systems containing ePHI (e.g. SIEM, alerting, 24/7 monitoring)?", "options": ["No logging", "Logs kept, never reviewed", "Reviewed after incidents", "Regular manual review", "Continuous monitoring with alerts"], "hipaa": "45 CFR 164.312(b) audit controls; 164.308(a)(1)(ii)(D) information system activity review", "nist": "DE.CM Continuous Monitoring; DE.AE Adverse Event Analysis", "drivers": ["hacking", "network_server", "insider"], "evidence": "Monitoring and logging improvements appear in just 0.1% of closed cases, despite hacking dominating the breach record."}, {"id": "C8", "name": "Endpoint protection and patching", "question": "Are all endpoints and servers protected by managed anti-malware/EDR and patched on a defined schedule?", "options": ["No", "Basic antivirus only", "Antivirus plus ad-hoc patching", "EDR plus monthly patching", "EDR, critical patches within 14 days, tracked"], "hipaa": "45 CFR 164.308(a)(5)(ii)(B) protection from malicious software; 164.308(a)(1)(ii)(B) risk management", "nist": "PR.PS Platform Security; DE.CM Continuous Monitoring", "drivers": ["hacking", "network_server", "ransomware"], "evidence": "Ransomware is named in 20.4% of described cases; endpoint/EDR and patching measures together appear in under 1% of closed cases."}, {"id": "C9", "name": "Backup and recovery (ransomware resilience)", "question": "Do you keep offline or immutable backups of ePHI systems and test restoring them?", "options": ["No backups", "Online backups only", "Offline backups, untested", "Offline/immutable backups, tested yearly", "Immutable backups, tested quarterly, documented recovery plan"], "hipaa": "45 CFR 164.308(a)(7) contingency plan (data backup, disaster recovery)", "nist": "RC.RP Incident Recovery Plan Execution; PR.DS Data Security", "drivers": ["ransomware", "hacking"], "evidence": "Ransomware cases rarely report backup or recovery improvements (0.2%)."}, {"id": "C10", "name": "Incident response plan", "question": "Do you have a written, tested incident response plan that covers breach notification within 60 days?", "options": ["No plan", "Informal plan", "Written plan, never tested", "Written and tested yearly", "Tested yearly, includes vendors and notification workflow"], "hipaa": "45 CFR 164.308(a)(6) security incident procedures; 164.404-164.410 breach notification", "nist": "RS.MA Incident Management; RS.CO Incident Response Reporting", "drivers": ["general", "hacking", "vendor"], "evidence": "Placeholder counts (500/501 individuals) appear in 4.4% of filings, showing organisations often report before they know the scope of a breach."}, {"id": "C11", "name": "Mail and disclosure safeguards", "question": "Are there checks (address verification, two-person review, data-loss prevention) before PHI is mailed or emailed outside the organisation?", "options": ["No checks", "Staff discretion", "Written procedure", "Procedure plus spot checks", "Automated DLP and verification"], "hipaa": "45 CFR 164.530(c) administrative, technical and physical safeguards; 164.502(b) minimum necessary", "nist": "PR.DS Data Security; PR.AT Awareness and Training", "drivers": ["misdirected"], "evidence": "Misdirected mail or disclosure accounts for 5.7% of described cases."}, {"id": "C12", "name": "Device and media security", "question": "Are laptops, portable devices and paper records tracked, encrypted or locked, and securely disposed of?", "options": ["No controls", "Some policy", "Encryption for laptops", "Encryption plus asset inventory", "Inventory, encryption, remote wipe and certified disposal"], "hipaa": "45 CFR 164.310(d)(1) device and media controls; 164.310(c) workstation security", "nist": "PR.DS Data Security; ID.AM Asset Management", "drivers": ["device"], "evidence": "Theft, loss and improper disposal together are now only about 2% of breaches, showing the effect of device encryption since the 2010s."}], "drivers": {"network_server": "Data stored on network servers", "hacking": "Exposure to hacking / IT incidents", "vendor": "Reliance on vendors (business associates)", "email": "Email used for ePHI", "ransomware": "Ransomware exposure", "insider": "Workforce access to ePHI", "misdirected": "Mailing or emailing PHI externally", "device": "Laptops, portable devices or paper records", "emr": "Electronic medical record system", "general": "General governance"}};
-const W = {hacking:.82,network_server:.68,vendor:.34,email:.22,ransomware:.20,insider:.16,misdirected:.06,emr:.04,device:.02,general:.30};
-const LOCS = {"Network server":"loc_network_server","Email":"loc_email","Electronic medical record":"loc_emr","Desktop computer":"loc_desktop","Laptop":"loc_laptop","Paper/films":"loc_paper","Other portable device":"loc_portable"};
-const LBL = {loc_network_server:"ePHI on network servers",loc_email:"ePHI in email",loc_emr:"ePHI in EMR",loc_desktop:"Desktops",loc_laptop:"Laptops",loc_paper:"Paper records",loc_portable:"Portable devices",hacking:"Hacking scenario",ba_present:"Incident at a vendor",type_Business_Associate:"Is a business associate",type_Health_Plan:"Is a health plan",type_Healthcare_Clearing_House:"Is a clearinghouse",n_locations:"Number of data locations",repeat_entity:"Previously breached",spec_Womens_health:"Women's health provider",spec_Behavioral_and_developmental_health:"Behavioral health provider",region_Northeast:"Northeast",region_Midwest:"Midwest",region_West:"West"};
-const $ = id => document.getElementById(id);
-const answers = {C1:0,C2:1,C3:3,C4:2,C5:1,C6:2,C7:1,C8:2,C9:1,C10:1,C11:2,C12:3}; // sample answers
+(function(){
+const $ = s => document.querySelector(s);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const smooth = x => { x = clamp(x,0,1); return x*x*(3-2*x); };
+const rnd = (a,b) => a + Math.random()*(b-a);
+const fmt = (s) => { s = Math.floor(s); const m = Math.floor(s/60), r = s%60; return String(m).padStart(2,'0')+':'+String(r).padStart(2,'0'); };
+const fmtH = (s) => { s = Math.floor(s); const h=Math.floor(s/3600), m=Math.floor(s/60)%60, r=s%60; return [h,m,r].map(n=>String(n).padStart(2,'0')).join(':'); };
 
-$("locs").innerHTML = Object.keys(LOCS).map((k,i)=>`<label class="chip"><input type="checkbox" id="loc${i}" value="${k}" ${["Network server","Email","Electronic medical record"].includes(k)?"checked":""}>${k}</label>`).join("");
-$("qs").innerHTML = KB.controls.map(c=>`<div class="q"><div class="qn">${c.name}</div><div class="qt">${c.question}</div><div class="scale" role="group" aria-label="${c.name}">${c.options.map((o,i)=>`<button type="button" data-c="${c.id}" data-v="${i}" aria-pressed="${answers[c.id]===i}">${o}</button>`).join("")}</div></div>`).join("");
-$("qs").addEventListener("click",e=>{const b=e.target.closest("button[data-c]");if(!b)return;answers[b.dataset.c]=+b.dataset.v;
-  b.parentElement.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));run();});
-document.querySelectorAll("input,select").forEach(el=>el.addEventListener("input",run));
+/* ---------------- Renderer & scene ---------------- */
+const view = $('#view');
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+view.insertBefore(renderer.domElement, view.firstChild);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0c171c);
+scene.fog = new THREE.Fog(0x0c171c, 16, 40);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 120);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI*0.48; controls.minDistance = 2; controls.maxDistance = 30;
 
-function profile(){return{et:$("etype").value,spec:$("spec").value,region:$("region").value,
-  locs:[...document.querySelectorAll("#locs input:checked")].map(x=>x.value),vendors:$("vendors").checked,mails:$("mails").checked,
-  repeat:$("repeat").checked,hack:$("hack").checked,vinc:$("vinc").checked};}
-function features(p){const x={};M.features.forEach(f=>x[f]=0);
-  const t={"Business Associate":"type_Business_Associate","Health Plan":"type_Health_Plan","Healthcare Clearing House":"type_Healthcare_Clearing_House"}[p.et]; if(t)x[t]=1;
-  if(p.region!=="South")x["region_"+p.region]=1;
-  p.locs.forEach(l=>x[LOCS[l]]=1); x.n_locations=Math.max(1,p.locs.length);
-  x.ba_present=+p.vinc; x.hacking=+p.hack; x.repeat_entity=+p.repeat;
-  if(p.spec==="Women's health")x.spec_Womens_health=1; if(p.spec==="Behavioral health")x.spec_Behavioral_and_developmental_health=1; return x;}
-function predict(x){let z=M.intercept;const parts=[];M.features.forEach((f,i)=>{const s=(x[f]-M.mean[i])/M.scale[i]*M.coef[i];z+=s;
-  const s0=(0-M.mean[i])/M.scale[i]*M.coef[i]; if(x[f]!==0)parts.push([LBL[f]||f,s-s0]);});
-  return{p:1/(1+Math.exp(-z)),parts:parts.filter(d=>Math.abs(d[1])>.03).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,6)};}
-function drivers(p){const d=new Set(["general","hacking","ransomware","insider"]);
-  if(p.locs.includes("Network server"))d.add("network_server"); if(p.locs.includes("Email"))d.add("email");
-  if(p.locs.includes("Electronic medical record"))d.add("emr");
-  if(p.locs.some(l=>["Laptop","Paper/films","Other portable device","Desktop computer"].includes(l)))d.add("device");
-  if(p.vendors)d.add("vendor"); if(p.mails)d.add("misdirected"); return d;}
-const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let last=null;
-function run(){const p=profile(),{p:prob,parts}=predict(features(p)),d=drivers(p);
-  const rows=KB.controls.map(c=>{const lv=answers[c.id]||0,gap=(4-lv)/4,m=c.drivers.filter(x=>d.has(x));
-    const rel=m.length?1-m.reduce((a,x)=>a*(1-W[x]),1):0;
-    return{...c,lv,status:lv>=3?"Compliant":lv===2?"Partial":"Gap",prio:Math.round(100*gap*(.2+.8*rel)*(.5+prob)/1.5*10)/10};}).sort((a,b)=>b.prio-a.prio);
-  const mat=Math.round(KB.controls.reduce((a,c)=>a+(answers[c.id]||0),0)/(4*KB.controls.length)*100);
-  $("k-p").textContent=Math.round(prob*100)+"%"; $("k-m").textContent=mat+"%"; $("k-g").textContent=rows.filter(r=>r.status==="Gap").length;
-  $("m-p").style.width=(prob*100)+"%"; $("m-b").style.left=(M.base_rate*100)+"%"; $("base").textContent=Math.round(M.base_rate*100)+"%";
-  const mx=Math.max(.5,...parts.map(x=>Math.abs(x[1])));
-  $("factors").innerHTML=parts.length?parts.map(([n,v])=>`<div class="factor"><span>${esc(n)} <span style="color:var(--ink2)">(${v>0?"raises":"lowers"})</span></span><div class="bar"><span style="${v>0?`left:50%;width:${v/mx*50}%;background:var(--gap)`:`right:50%;width:${-v/mx*50}%;background:var(--accent)`}"></span></div></div>`).join(""):'<span style="color:var(--ink2)">Baseline profile: no strong factors.</span>';
-  $("find").innerHTML=rows.map(r=>`<tr class="${r.status}"><td><strong>${esc(r.name)}</strong><span class="cfr">${esc(r.hipaa)}</span>${r.status!=="Compliant"?`<details><summary>Why it matters</summary><p>${esc(r.evidence)}<br><span class="cfr">NIST CSF 2.0: ${esc(r.nist)}</span><br>Now: ${esc(r.options[r.lv])}</p></details>`:""}</td><td><span class="pill ${r.status}">${r.status}</span></td><td class="num">${r.prio.toFixed(1)}</td></tr>`).join("");
-  last={p,prob,mat,rows,parts};}
-$("copy").addEventListener("click",async()=>{if(!last)return;const {prob,mat,rows,parts}=last;
-  const t=[`GOVERNANCE RISK AUDIT: ${$("org").value}`,`Chance a breach would affect 10,000+ people: ${Math.round(prob*100)}% (average ${Math.round(M.base_rate*100)}%)`,`Control maturity: ${mat}%`,"","Severity drivers:",...parts.map(([n,v])=>`- ${n}: ${v>0?"raises":"lowers"} risk`),"","Findings (highest priority first):",
-   ...rows.filter(r=>r.status!=="Compliant").map((r,i)=>`${i+1}. ${r.name} [${r.status}, priority ${r.prio}]\n   Now: ${r.options[r.lv]}\n   HIPAA: ${r.hipaa}\n   NIST CSF 2.0: ${r.nist}\n   Evidence: ${r.evidence}`),"","Research prototype; not legal advice."].join("\n");
-  const ta=$("rep");ta.value=t;
-  try{await navigator.clipboard.writeText(t);$("copied").hidden=false;setTimeout(()=>$("copied").hidden=true,1800);}catch(e){ta.hidden=false;ta.select();}});
-run();
+scene.add(new THREE.HemisphereLight(0xd6ecff, 0x16262c, 0.85));
+const sun = new THREE.DirectionalLight(0xffffff, 0.75); sun.position.set(5,10,6); scene.add(sun);
+const fill = new THREE.DirectionalLight(0x9fd4ff, 0.3); fill.position.set(-6,4,-5); scene.add(fill);
+
+function M(color, o){ return new THREE.MeshStandardMaterial(Object.assign({color, metalness:0.15, roughness:0.6}, o||{})); }
+function add(parent, geo, mat, x, y, z){ const m = new THREE.Mesh(geo, mat); m.position.set(x||0,y||0,z||0); parent.add(m); return m; }
+const box = (p,w,h,d,mat,x,y,z) => add(p, new THREE.BoxGeometry(w,h,d), mat, x,y,z);
+const cyl = (p,rt,rb,h,mat,x,y,z,seg) => add(p, new THREE.CylinderGeometry(rt,rb,h,seg||24), mat, x,y,z);
+const UP = new THREE.Vector3(0,1,0);
+const _d = new THREE.Vector3();
+function placeLink(mesh, a, b){
+  _d.subVectors(b,a); const L = _d.length();
+  mesh.position.copy(a).addScaledVector(_d, 0.5);
+  mesh.scale.set(1, Math.max(L,0.0001), 1);
+  if (L > 1e-5) mesh.quaternion.setFromUnitVectors(UP, _d.normalize());
+}
+function unitCyl(r, mat, parent){ const m = new THREE.Mesh(new THREE.CylinderGeometry(r,r,1,18), mat); parent.add(m); return m; }
+
+const matWhite = M(0xdfe7ea,{roughness:.45});
+const matRobot = M(0xe9eef0,{roughness:.35, metalness:.1});
+const matJoint = M(0x37474f,{roughness:.4, metalness:.5});
+const matDark = M(0x24343b,{roughness:.7});
+const matSteel = M(0xc9d3d8,{metalness:.85, roughness:.25});
+const matFloorOr = M(0x1b2a30,{roughness:.9});
+const matDrape = new THREE.MeshStandardMaterial({color:0x2f7f78, roughness:.85, transparent:true, opacity:1});
+const matSkin = new THREE.MeshStandardMaterial({color:0xc9a48a, roughness:.8, transparent:true, opacity:1});
+
+/* ---------------- Shared simulation state ---------------- */
+const S = { running:true, speed:1, mode:'or', simT:0, labels:true, xray:false };
+
+/* =================================================================
+   OPERATING ROOM TWIN
+   ================================================================= */
+const orG = new THREE.Group(); scene.add(orG);
+add(orG, new THREE.PlaneGeometry(16,14), matFloorOr).rotation.x = -Math.PI/2;
+const grid = new THREE.GridHelper(16, 32, 0x2b4048, 0x203239); grid.position.y = 0.002; orG.add(grid);
+box(orG, 16, 3.8, 0.1, M(0x142228), 0, 1.9, -5);
+box(orG, 0.1, 3.8, 14, M(0x122026), -8, 1.9, 0);
+// sterile field floor marking
+const fieldRing = add(orG, new THREE.RingGeometry(2.3, 2.36, 64), new THREE.MeshBasicMaterial({color:0x6cc6ff, transparent:true, opacity:.35, side:THREE.DoubleSide}), 0, 0.004, 0);
+fieldRing.rotation.x = -Math.PI/2;
+
+// Operating table
+box(orG, 0.9, 0.5, 0.6, matDark, 0, 0.25, 0);
+cyl(orG, 0.14, 0.18, 0.4, matSteel, 0, 0.7, 0);
+box(orG, 2.3, 0.12, 0.66, matDark, 0, 0.96, 0);
+box(orG, 2.3, 0.06, 0.68, M(0x3a4f58), 0, 1.04, 0);
+// Patient (abstracted)
+const body = add(orG, new THREE.CylinderGeometry(0.21,0.2,1.55,24), matSkin, 0.05, 1.27, 0); body.rotation.z = Math.PI/2;
+const head = add(orG, new THREE.SphereGeometry(0.14, 24, 18), matSkin, -0.92, 1.27, 0);
+const drape = box(orG, 1.7, 0.04, 0.82, matDrape, 0.12, 1.49, 0);
+box(orG, 0.05, 0.5, 0.82, matDrape, -0.72, 1.3, 0); // anaesthesia screen drape
+// Port sites and operative site
+const SITE = new THREE.Vector3(0.18, 1.3, 0.02);
+const PORTS = [
+  new THREE.Vector3(0.02, 1.515, 0.0),
+  new THREE.Vector3(-0.22, 1.515, 0.24),
+  new THREE.Vector3(0.38, 1.515, 0.24),
+  new THREE.Vector3(0.58, 1.515, -0.17)
+];
+PORTS.forEach(p => { const r = add(orG, new THREE.RingGeometry(0.025,0.04,20), new THREE.MeshBasicMaterial({color:0xffd27a, side:THREE.DoubleSide}), p.x, p.y+0.002, p.z); r.rotation.x = -Math.PI/2; });
+const siteGlow = add(orG, new THREE.SphereGeometry(0.06,16,12), new THREE.MeshBasicMaterial({color:0xff7a6a, transparent:true, opacity:0}), SITE.x, SITE.y, SITE.z);
+
+// Patient cart (robot)
+const CART = new THREE.Vector3(0.25, 0, -1.95);
+box(orG, 0.95, 0.35, 0.8, matRobot, CART.x, 0.18, CART.z);
+cyl(orG, 0.16, 0.2, 2.5, matRobot, CART.x, 1.6, CART.z);
+box(orG, 0.22, 0.2, 1.9, matRobot, CART.x, 2.85, CART.z+0.85);
+box(orG, 1.5, 0.12, 0.22, matJoint, 0.25, 2.72, -0.2);
+const cartRing = add(orG, new THREE.RingGeometry(0.62,0.68,48), new THREE.MeshBasicMaterial({color:0x56d08a, side:THREE.DoubleSide}), CART.x, 0.005, CART.z); cartRing.rotation.x = -Math.PI/2;
+
+const ARM_DEF = [
+  {id:'ARM-1', tool:'30° endoscope', mount:new THREE.Vector3(0.05,2.66,-0.2)},
+  {id:'ARM-2', tool:'Large needle driver', mount:new THREE.Vector3(-0.38,2.66,-0.12)},
+  {id:'ARM-3', tool:'Bipolar forceps', mount:new THREE.Vector3(0.45,2.66,-0.12)},
+  {id:'ARM-4', tool:'Curved scissors', mount:new THREE.Vector3(0.88,2.66,-0.25)}
+];
+const L1 = 0.78, L2 = 0.72, SHAFT = 0.9;
+const arms = ARM_DEF.map((d,i) => {
+  const g = new THREE.Group(); orG.add(g);
+  const a = {
+    ...d, i, g,
+    l1: unitCyl(0.055, matRobot, g), l2: unitCyl(0.045, matRobot, g),
+    j0: add(g, new THREE.SphereGeometry(0.075,18,14), matJoint),
+    j1: add(g, new THREE.SphereGeometry(0.065,18,14), matJoint),
+    drive: add(g, new THREE.BoxGeometry(0.11,0.26,0.11), new THREE.MeshStandardMaterial({color:0xdfe7ea, roughness:.4, emissive:0x000000})),
+    shaft: unitCyl(0.012, matSteel, g),
+    tip: add(g, new THREE.SphereGeometry(0.022,12,10), new THREE.MeshBasicMaterial({color: i===0?0x7fe3ff:0xc9d3d8})),
+    D:new THREE.Vector3(), E:new THREE.Vector3(), T:new THREE.Vector3(),
+    temp: 33+rnd(0,1.5), torque: 0.8, act:0, shoulder:0, elbow:0, hist:[], state:'idle', derate:false
+  };
+  const out = new THREE.Vector3(PORTS[i].x - SITE.x, 0, PORTS[i].z - SITE.z);
+  if (out.lengthSq() < 1e-4) out.set(0,0,-1);
+  a.out = out.normalize();
+  return a;
+});
+
+// Surgical lights
+[[-0.6,0.5],[0.8,-0.6]].forEach(([x,z]) => {
+  cyl(orG, 0.025,0.025,0.9, matSteel, x, 3.35, z);
+  const lamp = cyl(orG, 0.36, 0.3, 0.1, matWhite, x, 2.88, z, 32);
+  add(orG, new THREE.CircleGeometry(0.28, 32), new THREE.MeshBasicMaterial({color:0xfff6e0}), x, 2.825, z).rotation.x = Math.PI/2;
+});
+const spot = new THREE.SpotLight(0xfff3dc, 1.1, 8, Math.PI/7, 0.5, 1.2);
+spot.position.set(0.1, 2.85, 0); spot.target.position.copy(SITE); orG.add(spot); orG.add(spot.target);
+
+// Surgeon console
+const CONSOLE = new THREE.Vector3(-2.7, 0, -1.6);
+box(orG, 0.9, 0.95, 0.75, matRobot, CONSOLE.x, 0.48, CONSOLE.z);
+const hood = box(orG, 0.8, 0.35, 0.55, matRobot, CONSOLE.x+0.05, 1.25, CONSOLE.z+0.05); hood.rotation.z = -0.25;
+const consoleScreen = add(orG, new THREE.PlaneGeometry(0.5,0.2), new THREE.MeshBasicMaterial({color:0x6cc6ff}), CONSOLE.x+0.44, 1.2, CONSOLE.z+0.05);
+consoleScreen.rotation.y = Math.PI/2;
+box(orG, 0.5, 0.06, 0.5, matDark, CONSOLE.x+0.75, 0.9, CONSOLE.z); // armrest
+box(orG, 0.45, 0.5, 0.45, matDark, CONSOLE.x+1.05, 0.25, CONSOLE.z); // stool
+
+// Anaesthesia station with live monitor texture
+const AN = new THREE.Vector3(-2.0, 0, 0.95);
+box(orG, 0.65, 1.05, 0.55, M(0xb8c4c9), AN.x, 0.53, AN.z);
+cyl(orG, 0.02,0.02,0.75, matSteel, AN.x, 1.42, AN.z);
+const monCanvas = document.createElement('canvas'); monCanvas.width = 256; monCanvas.height = 160;
+const monTex = new THREE.CanvasTexture(monCanvas); monTex.encoding = THREE.sRGBEncoding;
+box(orG, 0.56, 0.38, 0.05, matDark, AN.x, 1.9, AN.z);
+const monitor = add(orG, new THREE.PlaneGeometry(0.52,0.33), new THREE.MeshBasicMaterial({map:monTex}), AN.x+0.001, 1.9, AN.z+0.027);
+
+// Instrument tray (Mayo stand)
+const TRAY = new THREE.Vector3(1.75, 0, 1.15);
+cyl(orG, 0.025,0.025,1.0, matSteel, TRAY.x+0.3, 0.5, TRAY.z);
+box(orG, 0.75, 0.03, 0.48, matSteel, TRAY.x, 1.02, TRAY.z);
+box(orG, 0.72, 0.005, 0.45, M(0x2f7f78), TRAY.x, 1.04, TRAY.z);
+const trayItems = [];
+for (let k=0;k<5;k++){
+  const m = new THREE.MeshStandardMaterial({color:0xc9d3d8, metalness:.85, roughness:.25, emissive:0x000000});
+  const it = box(orG, 0.42, 0.012, 0.02, m, TRAY.x-0.04, 1.05, TRAY.z-0.17+k*0.085);
+  it.rotation.y = rnd(-0.08,0.08); trayItems.push(it);
+}
+
+// Autoclave (sterile processing)
+const AC = new THREE.Vector3(3.2, 0, -2.2);
+box(orG, 1.0, 1.5, 0.9, M(0xaebcc2,{metalness:.6, roughness:.35}), AC.x, 0.75, AC.z);
+const acDoor = add(orG, new THREE.CircleGeometry(0.32, 40), new THREE.MeshStandardMaterial({color:0x6f7f86, metalness:.8, roughness:.3}), AC.x, 0.85, AC.z+0.452);
+const acRing = add(orG, new THREE.RingGeometry(0.33,0.38,48), new THREE.MeshBasicMaterial({color:0xf3b64a}), AC.x, 0.85, AC.z+0.453);
+
+// OR simulation state
+const PHASES = [{n:'Docking',d:25},{n:'Port placement',d:30},{n:'Dissection',d:90},{n:'Suturing',d:70},{n:'Undocking',d:25}];
+const CASE_LEN = PHASES.reduce((s,p)=>s+p.d,0);
+const OR = {
+  caseT:0, caseNo:142, phase:-1, fault:false, faultT:0,
+  vit:{hr:72, sp:98, sys:118, dia:76, co:36},
+  ecgPhase:0, ecgBuf:new Float32Array(380), ecgIdx:0,
+  ac:{p:0.35},
+  log:[],
+  inst:[
+    {name:'30° endoscope', sn:'SI-ENDO-1182', loc:'ARM-1', arm:0, used:214, limit:null},
+    {name:'Large needle driver', sn:'SI-NDL-04417', loc:'ARM-2', arm:1, used:6, limit:10},
+    {name:'Fenestrated bipolar forceps', sn:'SI-FBF-02931', loc:'ARM-3', arm:2, used:9, limit:10},
+    {name:'Monopolar curved scissors', sn:'SI-MCS-07760', loc:'ARM-4', arm:3, used:4, limit:10},
+    {name:'Bipolar forceps (spare)', sn:'SI-FBF-03307', loc:'Tray', arm:-1, used:2, limit:10},
+    {name:'Clip applier, medium-large', sn:'SI-CLP-01145', loc:'Autoclave', arm:-1, used:3, limit:15},
+    {name:'Cadiere grasping forceps', sn:'SI-CGF-05582', loc:'Autoclave', arm:-1, used:7, limit:10}
+  ]
+};
+
+function logEv(store, msg, sev){
+  const t = store === OR.log ? fmt(OR.caseT) : fmtH(LINE.t);
+  store.unshift({t, msg, sev:sev||''});
+  if (store.length > 40) store.pop();
+  dirtyLog = true;
+}
+
+function pqrst(x){
+  const g = (c,a,w) => a*Math.exp(-((x-c)*(x-c))/(2*w*w));
+  return g(.2,.11,.025) + g(.36,-.12,.01) + g(.4,1,.012) + g(.44,-.22,.012) + g(.66,.26,.04);
+}
+
+const tmpV = new THREE.Vector3(), tmpV2 = new THREE.Vector3(), tmpV3 = new THREE.Vector3();
+let histAcc = 0;
+
+function stepOR(dt){
+  OR.caseT += dt;
+  if (OR.caseT >= CASE_LEN){
+    OR.caseT -= CASE_LEN;
+    // end-of-case instrument life accounting
+    OR.inst.forEach(it => { if (it.arm >= 0 && it.limit) it.used++; if (it.arm === 0) it.used++; });
+    logEv(OR.log, `Case #${String(OR.caseNo).padStart(4,'0')} complete · instrument lives decremented`, 'ok');
+    OR.inst.forEach(it => {
+      if (it.arm >= 0 && it.limit && it.used >= it.limit){
+        const spare = OR.inst.find(s => s.loc === 'Tray' && s.limit && s.used < s.limit);
+        it.loc = 'Retired'; const a = it.arm; it.arm = -1;
+        if (spare){ spare.arm = a; spare.loc = ARM_DEF[a].id; logEv(OR.log, `${it.sn} reached life limit · swapped for ${spare.sn} on ${ARM_DEF[a].id}`, 'warn'); }
+        else logEv(OR.log, `${it.sn} reached life limit · no spare on tray`, 'crit');
+      }
+    });
+    OR.caseNo++; OR.phase = -1;
+  }
+  // phase
+  let acc = 0, ph = 0, tIn = 0;
+  for (let k=0;k<PHASES.length;k++){ if (OR.caseT < acc + PHASES[k].d){ ph = k; tIn = OR.caseT - acc; break; } acc += PHASES[k].d; }
+  if (ph !== OR.phase){ OR.phase = ph; logEv(OR.log, `Phase: ${PHASES[ph].n}`, ''); }
+  OR.tIn = tIn;
+
+  const t = S.simT;
+  let dock = 1;
+  const ACT = [[.2,.2,.2,.2],[.2,.2,.2,.2],[.3,.15,1,1],[.3,1,1,.15],[.2,.2,.2,.2]][ph];
+  arms.forEach((a,i) => {
+    let ins = 1;
+    if (ph === 0){ dock = smooth(tIn/20); ins = 0; }
+    else if (ph === 1){ ins = smooth((tIn - 3 - i*5)/5); }
+    else if (ph === 4){ ins = 1 - smooth(tIn/9); dock = 1 - smooth((tIn-11)/12); }
+    a.derate = OR.fault && i === 2 && a.temp >= 65;
+    const act = ACT[i] * (a.derate ? 0.2 : (OR.fault && i===2 ? 0.7 : 1));
+    a.act = act;
+    // target tip position near operative site with surgical motion
+    const off = tmpV.set((i-1.5)*0.05, 0, (i%2?0.04:-0.04));
+    const osc = tmpV2.set(Math.sin(t*1.7+i*1.3)*0.055, Math.sin(t*2.6+i*2.1)*0.03, Math.cos(t*1.25+i)*0.055).multiplyScalar(act);
+    const full = tmpV3.copy(SITE).add(off).add(osc);
+    const P = PORTS[i];
+    const sdir = new THREE.Vector3().subVectors(P, full); const depth = sdir.length(); sdir.normalize();
+    const Tdock = new THREE.Vector3().copy(P).addScaledVector(sdir, -depth*ins);
+    const Ddock = new THREE.Vector3().copy(P).addScaledVector(sdir, SHAFT);
+    const Dstow = new THREE.Vector3().copy(a.mount).add(new THREE.Vector3(a.out.x*0.35, -0.55, a.out.z*0.35 + 0.05));
+    const e = smooth(dock);
+    a.D.lerpVectors(Dstow, Ddock, e);
+    a.T.lerpVectors(new THREE.Vector3().copy(Dstow).add(new THREE.Vector3(0,-0.3,0)), Tdock, e);
+    // 2-link IK mount -> drive
+    const Mv = a.mount, md = new THREE.Vector3().subVectors(a.D, Mv);
+    let d = clamp(md.length(), Math.abs(L1-L2)+0.02, L1+L2-0.02); md.normalize();
+    const cosA = clamp((L1*L1 + d*d - L2*L2)/(2*L1*d), -1, 1), ang = Math.acos(cosA);
+    const pref = new THREE.Vector3(a.out.x, 1.1, a.out.z).normalize();
+    const bend = pref.sub(md.clone().multiplyScalar(pref.dot(md))).normalize();
+    a.E.copy(Mv).addScaledVector(md, L1*Math.cos(ang)).addScaledVector(bend, L1*Math.sin(ang));
+    const dEnd = new THREE.Vector3().copy(Mv).addScaledVector(md, d);
+    // telemetry angles
+    a.shoulder = THREE.MathUtils.radToDeg(new THREE.Vector3().subVectors(a.E,Mv).angleTo(new THREE.Vector3(0,-1,0)));
+    a.elbow = THREE.MathUtils.radToDeg(new THREE.Vector3().subVectors(Mv,a.E).angleTo(new THREE.Vector3().subVectors(dEnd,a.E)));
+    // thermal + torque model
+    const target = 33 + 10*act + (OR.fault && i===2 ? 36 : 0) - (a.derate ? 4 : 0);
+    a.temp += (target - a.temp) * Math.min(1, dt*0.07);
+    a.torque += ((0.7 + 2.6*act + (OR.fault&&i===2?0.9:0) + rnd(-.15,.15)) - a.torque) * Math.min(1, dt*2);
+    const st = a.temp >= 62 ? 'crit' : a.temp >= 52 ? 'warn' : (act > 0.5 ? 'active' : (dock < 0.98 ? 'moving' : 'hold'));
+    if (st !== a.state && (st==='crit' || st==='warn')) logEv(OR.log, `${a.id} motor ${a.temp.toFixed(1)} °C · ${st==='crit'?'thermal derate engaged':'above thermal advisory'}`, st);
+    a.state = st;
+  });
+  OR.dock = dock;
+  histAcc += dt;
+  if (histAcc >= 0.5){ histAcc = 0; arms.forEach(a => { a.hist.push(a.temp); if (a.hist.length > 80) a.hist.shift(); }); }
+
+  // vitals
+  const v = OR.vit;
+  const hrT = 68 + (ph===2?7:ph===3?4:0) + Math.sin(t*0.13)*2;
+  v.hr += (hrT - v.hr)*Math.min(1,dt*0.3) + rnd(-.3,.3)*dt*4;
+  v.sp += ((97.8 + Math.sin(t*0.07)*0.8) - v.sp)*Math.min(1,dt*0.2);
+  v.sys += ((116 + (ph===2?8:0) + Math.sin(t*0.05)*3) - v.sys)*Math.min(1,dt*0.2);
+  v.dia += ((75 + (ph===2?4:0)) - v.dia)*Math.min(1,dt*0.2);
+  v.co += ((35 + ((ph===1||ph===2)?3:0)) - v.co)*Math.min(1,dt*0.15);
+  // ECG sampling (≈ 125 Hz sim)
+  const n = Math.max(1, Math.round(dt*125));
+  for (let k=0;k<n;k++){
+    OR.ecgPhase += (dt/n) * v.hr/60;
+    OR.ecgBuf[OR.ecgIdx] = pqrst(OR.ecgPhase % 1) + rnd(-.015,.015);
+    OR.ecgIdx = (OR.ecgIdx + 1) % OR.ecgBuf.length;
+  }
+  // autoclave
+  OR.ac.p += dt/110;
+  if (OR.ac.p >= 1){
+    OR.ac.p = 0;
+    const rel = OR.inst.filter(it => it.loc === 'Autoclave');
+    rel.forEach(it => it.loc = 'Tray');
+    logEv(OR.log, `Autoclave cycle complete · 134 °C / 4 min · ${rel.length} instrument${rel.length===1?'':'s'} released`, 'ok');
+  }
+}
+
+function renderOR(){
+  arms.forEach((a,i) => {
+    a.j0.position.copy(a.mount); a.j1.position.copy(a.E);
+    placeLink(a.l1, a.mount, a.E); placeLink(a.l2, a.E, a.D);
+    placeLink(a.shaft, a.D, a.T);
+    a.drive.position.copy(a.D);
+    _d.subVectors(a.T, a.D).normalize(); a.drive.quaternion.setFromUnitVectors(UP, _d);
+    a.tip.position.copy(a.T);
+    const hot = a.state === 'crit' ? 1 : a.state === 'warn' ? 0.5 : 0;
+    const pulse = hot ? (0.5 + 0.5*Math.sin(performance.now()/180)) * hot : 0;
+    a.drive.material.emissive.setRGB(pulse*0.9, pulse*0.12, pulse*0.08);
+  });
+  const anyCrit = arms.some(a => a.state==='crit'), anyWarn = arms.some(a => a.state==='warn');
+  cartRing.material.color.set(anyCrit ? 0xff5f57 : anyWarn ? 0xf3b64a : 0x56d08a);
+  siteGlow.material.opacity = S.xray ? 0.55 : 0;
+  acRing.material.color.setHSL(0.1 - OR.ac.p*0.0, 0.85, 0.45 + 0.1*Math.sin(performance.now()/400));
+  const trayCount = OR.inst.filter(it=>it.loc==='Tray').length;
+  trayItems.forEach((m,k) => { m.visible = k < trayCount + 2; });
+  consoleScreen.material.color.setHSL(0.56, 0.9, 0.55 + 0.08*Math.sin(performance.now()/700));
+}
+
+function drawECG(ctx, w, h, buf, idx, color, bg){
+  ctx.fillStyle = bg; ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle = 'rgba(126,240,168,0.08)'; ctx.lineWidth = 1;
+  for (let x=0;x<w;x+=w/20){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+  for (let y=0;y<h;y+=h/5){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+  ctx.strokeStyle = color; ctx.lineWidth = Math.max(1.5, w/380); ctx.beginPath();
+  const N = buf.length;
+  for (let k=0;k<N;k++){
+    const v = buf[(idx + k) % N];
+    const x = k/(N-1)*w, y = h*0.68 - v*h*0.55;
+    k ? ctx.lineTo(x,y) : ctx.moveTo(x,y);
+  }
+  ctx.stroke();
+}
+function drawMonitor(){
+  const c = monCanvas.getContext('2d'), w = 256, h = 160;
+  drawECG(c, w, 80, OR.ecgBuf, OR.ecgIdx, '#7ef0a8', '#050b0d');
+  c.fillStyle = '#050b0d'; c.fillRect(0,80,w,80);
+  c.font = '600 30px monospace'; c.fillStyle = '#7ef0a8'; c.fillText(Math.round(OR.vit.hr), 10, 122);
+  c.fillStyle = '#7fd3ff'; c.fillText(Math.round(OR.vit.sp), 96, 122);
+  c.fillStyle = '#e2edf0'; c.font = '600 20px monospace'; c.fillText(`${Math.round(OR.vit.sys)}/${Math.round(OR.vit.dia)}`, 170, 120);
+  c.font = '12px monospace'; c.fillStyle = '#87a1a9'; c.fillText('HR', 10, 146); c.fillText('SpO2', 96, 146); c.fillText('NIBP', 170, 146);
+  monTex.needsUpdate = true;
+}
+
+/* =================================================================
+   INSTRUMENT MANUFACTURING LINE TWIN
+   ================================================================= */
+const lineG = new THREE.Group(); lineG.visible = false; scene.add(lineG);
+add(lineG, new THREE.PlaneGeometry(40,16), M(0x18262c,{roughness:.95})).rotation.x = -Math.PI/2;
+const g2 = new THREE.GridHelper(40, 40, 0x2b4048, 0x1f3037); g2.position.y = 0.002; lineG.add(g2);
+// safety walkway lines
+[-2.2, 2.6].forEach(z => box(lineG, 32, 0.005, 0.08, new THREE.MeshBasicMaterial({color:0xf3b64a}), 0, 0.004, z));
+
+const BELT_Y = 0.9, START_X = -15, END_X = 15.5;
+// conveyor
+const beltCanvas = document.createElement('canvas'); beltCanvas.width = 64; beltCanvas.height = 16;
+{ const c = beltCanvas.getContext('2d'); c.fillStyle = '#1d2a30'; c.fillRect(0,0,64,16); c.fillStyle = '#2c3d44'; c.fillRect(0,0,8,16); }
+const beltTex = new THREE.CanvasTexture(beltCanvas); beltTex.wrapS = beltTex.wrapT = THREE.RepeatWrapping; beltTex.repeat.set(42,1);
+box(lineG, 32, 0.12, 1.0, M(0x55666e,{metalness:.6, roughness:.4}), 0, BELT_Y-0.12, 0);
+const belt = add(lineG, new THREE.PlaneGeometry(31.6, 0.82), new THREE.MeshStandardMaterial({map:beltTex, roughness:.9}), 0, BELT_Y-0.055, 0);
+belt.rotation.x = -Math.PI/2;
+for (let x=-15; x<=15; x+=2.5){ box(lineG, 0.08, BELT_Y-0.15, 0.08, matSteel, x, (BELT_Y-0.15)/2, -0.45); box(lineG, 0.08, BELT_Y-0.15, 0.08, matSteel, x, (BELT_Y-0.15)/2, 0.45); }
+// raw stock and finished goods
+box(lineG, 1.2, 0.9, 1.2, M(0x6b7d85,{metalness:.5}), -16.4, 0.45, 0);
+for (let k=0;k<3;k++) for (let j=0;j<2;j++) box(lineG, 0.5, 0.35, 0.4, M(0xc7b08a), 16.6 + j*0.55, 0.18 + k*0.36, -0.3 + (k%2)*0.2);
+
+const ST_DEF = [
+  {id:'CNC-01', name:'5-axis CNC machining', x:-10.5, cyc:5.0, col:0x6cc6ff},
+  {id:'LSR-02', name:'Laser UDI marking', x:-6.3, cyc:2.4, col:0xff5f57},
+  {id:'EPL-03', name:'Electropolishing', x:-2.1, cyc:4.0, col:0x5fd4e0},
+  {id:'VIS-04', name:'Vision inspection', x:2.1, cyc:1.6, col:0xb9a4ff},
+  {id:'STR-05', name:'Steam sterilisation', x:6.3, cyc:5.6, col:0xf3b64a},
+  {id:'PKG-06', name:'Robotic packaging', x:10.5, cyc:2.6, col:0x56d08a}
+];
+const stations = ST_DEF.map(d => ({...d, busy:0, done:0, state:'idle', part:null, maint:0}));
+function gantry(x, h, w, col){
+  const g = new THREE.Group(); g.position.x = x; lineG.add(g);
+  const frame = M(0x3b4c54,{metalness:.5, roughness:.45});
+  box(g, 0.14, h, 0.14, frame, -w/2, h/2, -0.75); box(g, 0.14, h, 0.14, frame, w/2, h/2, -0.75);
+  box(g, 0.14, h, 0.14, frame, -w/2, h/2, 0.75); box(g, 0.14, h, 0.14, frame, w/2, h/2, 0.75);
+  box(g, w+0.14, 0.3, 1.64, M(0xdfe7ea,{roughness:.4}), 0, h, 0);
+  box(g, w+0.16, 0.06, 1.66, new THREE.MeshBasicMaterial({color:col}), 0, h-0.17, 0);
+  return g;
+}
+// CNC
+const cnc = gantry(stations[0].x, 2.4, 1.8, stations[0].col);
+const glass = new THREE.MeshStandardMaterial({color:0x9fd4ff, transparent:true, opacity:.12, roughness:.1});
+box(cnc, 1.8, 1.4, 0.02, glass, 0, 1.55, 0.76);
+box(cnc, 1.8, 1.4, 0.02, glass, 0, 1.55, -0.76);
+const spindle = new THREE.Group(); cnc.add(spindle); spindle.position.set(0, 1.95, 0);
+cyl(spindle, 0.16,0.16,0.5, M(0x8a9aa2,{metalness:.7}), 0, 0, 0);
+const bit = cyl(spindle, 0.03,0.01,0.3, matSteel, 0, -0.38, 0);
+const chips = [];
+for (let k=0;k<14;k++){ const c = add(cnc, new THREE.SphereGeometry(0.018,6,4), new THREE.MeshBasicMaterial({color:0xffd27a}), 0, -5, 0); c.userData = {v:new THREE.Vector3(), life:0}; chips.push(c); }
+// Laser
+const lsr = gantry(stations[1].x, 2.0, 1.2, stations[1].col);
+const laserHead = box(lsr, 0.25, 0.3, 0.25, matDark, 0, 1.65, 0);
+const beam = unitCyl(0.008, new THREE.MeshBasicMaterial({color:0xff4a3d}), lsr);
+const beamDot = add(lsr, new THREE.SphereGeometry(0.04,12,10), new THREE.MeshBasicMaterial({color:0xff9c8f, transparent:true, opacity:.9}), 0, BELT_Y, 0);
+// Electropolish tank
+const epl = new THREE.Group(); epl.position.x = stations[2].x; lineG.add(epl);
+const tankMat = M(0x5d6f77,{metalness:.5, roughness:.4});
+box(epl, 1.8, 0.5, 0.08, tankMat, 0, BELT_Y+0.1, 0.62); box(epl, 1.8, 0.5, 0.08, tankMat, 0, BELT_Y+0.1, -0.62);
+box(epl, 0.08, 0.5, 1.3, tankMat, -0.9, BELT_Y+0.1, 0); box(epl, 0.08, 0.5, 1.3, tankMat, 0.9, BELT_Y+0.1, 0);
+const liquid = box(epl, 1.72, 0.02, 1.16, new THREE.MeshStandardMaterial({color:0x3fc7d6, transparent:true, opacity:.45, emissive:0x0b3940, roughness:.1}), 0, BELT_Y+0.2, 0);
+const bubbles = [];
+for (let k=0;k<22;k++){ const b = add(epl, new THREE.SphereGeometry(0.02,8,6), new THREE.MeshBasicMaterial({color:0xbff6ff, transparent:true, opacity:.7}), rnd(-.8,.8), BELT_Y+rnd(0,.2), rnd(-.5,.5)); bubbles.push(b); }
+// Vision
+const vis = gantry(stations[3].x, 2.0, 1.0, stations[3].col);
+const cam = box(vis, 0.2, 0.25, 0.3, matDark, 0, 1.6, 0);
+const ringLight = add(vis, new THREE.TorusGeometry(0.22, 0.03, 10, 40), new THREE.MeshBasicMaterial({color:0x3a3550}), 0, 1.42, 0); ringLight.rotation.x = Math.PI/2;
+const scanPlane = add(vis, new THREE.PlaneGeometry(0.9, 0.9), new THREE.MeshBasicMaterial({color:0xb9a4ff, transparent:true, opacity:0, side:THREE.DoubleSide}), 0, 1.15, 0);
+scanPlane.rotation.x = -Math.PI/2;
+// Reject chute & bin
+const REJECT = new THREE.Vector3(3.3, 0.45, 2.0);
+box(lineG, 0.9, 0.9, 0.9, M(0x7a2a27), REJECT.x, 0.45, REJECT.z);
+box(lineG, 0.92, 0.06, 0.92, new THREE.MeshBasicMaterial({color:0xff5f57}), REJECT.x, 0.92, REJECT.z);
+const chute = box(lineG, 0.5, 0.03, 1.3, matSteel, 2.75, 0.85, 1.2); chute.rotation.x = 0.22;
+// Steam sterilisation chamber
+const strG = new THREE.Group(); strG.position.x = stations[4].x; lineG.add(strG);
+const chamber = add(strG, new THREE.CylinderGeometry(0.9,0.9,2.0,40,1,true), new THREE.MeshStandardMaterial({color:0xaebcc2, metalness:.7, roughness:.3, side:THREE.DoubleSide}), 0, BELT_Y+0.2, 0);
+chamber.rotation.z = Math.PI/2;
+const strRings = [-1,1].map(s => { const r = add(strG, new THREE.TorusGeometry(0.9,0.05,10,48), new THREE.MeshBasicMaterial({color:0x54420f}), s*1.0, BELT_Y+0.2, 0); r.rotation.y = Math.PI/2; return r; });
+const steam = [];
+for (let k=0;k<16;k++){ const s = add(strG, new THREE.SphereGeometry(0.09,8,6), new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0}), rnd(-.8,.8), 2.2, rnd(-.3,.3)); s.userData = {ph:Math.random()}; steam.push(s); }
+cyl(strG, 0.06,0.06,0.8, matSteel, 0.4, BELT_Y+1.4, 0);
+// Packaging robot
+const pkg = new THREE.Group(); pkg.position.set(stations[5].x, 0, -1.2); lineG.add(pkg);
+cyl(pkg, 0.28,0.32,0.3, matJoint, 0, 0.15, 0);
+const pkBase = new THREE.Group(); pkBase.position.y = 0.3; pkg.add(pkBase);
+cyl(pkBase, 0.18,0.18,0.25, M(0xf3b64a), 0, 0.12, 0);
+const pkUpper = new THREE.Group(); pkUpper.position.y = 0.25; pkBase.add(pkUpper);
+box(pkUpper, 0.14, 0.9, 0.14, M(0xf3b64a), 0, 0.45, 0);
+const pkFore = new THREE.Group(); pkFore.position.y = 0.9; pkUpper.add(pkFore);
+box(pkFore, 0.12, 0.8, 0.12, M(0xf3b64a), 0, 0.4, 0);
+add(pkFore, new THREE.SphereGeometry(0.09,12,10), matJoint, 0, 0, 0);
+box(pkFore, 0.18, 0.08, 0.18, matDark, 0, 0.82, 0);
+box(lineG, 0.9, 0.7, 0.7, M(0x3b4c54), stations[5].x, 0.35, 1.25);
+for (let k=0;k<3;k++) box(lineG, 0.38, 0.12, 0.3, M(0xc7b08a), stations[5].x - 0.2 + (k%2)*0.4, 0.76 + Math.floor(k/2)*0.13, 1.25);
+
+// station floor rings
+stations.forEach(s => {
+  const r = add(lineG, new THREE.RingGeometry(1.25,1.32,48), new THREE.MeshBasicMaterial({color:0x56d08a, side:THREE.DoubleSide, transparent:true, opacity:.8}), s.x, 0.006, 0);
+  r.rotation.x = -Math.PI/2; s.ring = r;
+});
+
+// Parts (surgical forceps blanks)
+const partGeoA = new THREE.BoxGeometry(0.46, 0.025, 0.045);
+const loopGeo = new THREE.TorusGeometry(0.045, 0.012, 8, 20);
+let partSerial = 48210;
+const parts = [];
+function makePart(){
+  const g = new THREE.Group();
+  const m = new THREE.MeshStandardMaterial({color:0x9aa7ad, metalness:.5, roughness:.6, emissive:0x000000});
+  const a = new THREE.Mesh(partGeoA, m); a.rotation.y = 0.12; g.add(a);
+  const b = new THREE.Mesh(partGeoA, m); b.rotation.y = -0.12; g.add(b);
+  const l1 = new THREE.Mesh(loopGeo, m); l1.rotation.x = Math.PI/2; l1.position.set(-0.25, 0, 0.05); g.add(l1);
+  const l2 = l1.clone(); l2.position.z = -0.05; g.add(l2);
+  g.position.set(START_X, BELT_Y-0.02, 0); lineG.add(g);
+  return {g, m, x:START_X, z:0, y:BELT_Y-0.02, stage:0, state:'move', timer:0, sn:'P-'+(partSerial++), finish:0};
+}
+
+const LINE = {
+  t:0, good:0, rej:0, spawnAcc:0, completions:[], downtime:0,
+  wear:38, vib:1.9, fault:false, vibHist:[], vhAcc:0, rulWarned:false, log:[]
+};
+const BELT_V = 1.7;
+
+function stepLine(dt){
+  LINE.t += dt;
+  const cncS = stations[0];
+  if (cncS.maint > 0){ cncS.maint -= dt; LINE.downtime += dt; if (cncS.maint <= 0) logEv(LINE.log, 'CNC-01 back in production · new cutting tool qualified', 'ok'); }
+  // spawn
+  LINE.spawnAcc += dt;
+  if (LINE.spawnAcc > 2.2 && !parts.some(p => p.state!=='reject' && p.x < START_X + 0.9)){ LINE.spawnAcc = 0; parts.push(makePart()); }
+  // advance parts, front to back
+  const order = parts.filter(p => p.state !== 'reject').sort((a,b) => b.x - a.x);
+  let aheadX = Infinity;
+  for (const p of order){
+    if (p.state === 'proc'){
+      const s = stations[p.stage];
+      if (s === cncS && cncS.maint > 0){ /* paused for tool change */ }
+      else p.timer -= dt;
+      s.busy += dt;
+      if (p.timer <= 0){
+        s.done++; s.part = null;
+        if (p.stage === 0){
+          LINE.wear += LINE.fault ? 2.1 : 0.32;
+          LINE.wear = Math.min(LINE.wear, 100);
+        }
+        if (p.stage === 1){ p.m.color.set(0xb7c3c8); }
+        if (p.stage === 2){ p.m.color.set(0xe3eaee); p.m.metalness = .9; p.m.roughness = .18; }
+        if (p.stage === 3){
+          const pr = 0.012 + Math.max(0, LINE.wear-65)/100*0.9 + (LINE.fault ? 0.16 : 0);
+          if (Math.random() < pr){
+            p.state = 'reject'; LINE.rej++; p.m.color.set(0xff6b63); p.m.emissive.set(0x3a0805);
+            const why = LINE.fault || LINE.wear > 75 ? `burr ${rnd(.08,.2).toFixed(2)} mm on jaw serration` : `surface pit ${rnd(.03,.07).toFixed(2)} mm`;
+            logEv(LINE.log, `${p.sn} rejected at VIS-04 · ${why}`, 'warn');
+            continue;
+          }
+        }
+        if (p.stage === 4){ p.m.emissive.set(0x000000); }
+        p.stage++; p.state = 'move';
+      } else { aheadX = p.x; continue; }
+    }
+    if (p.state === 'move'){
+      const target = p.stage < stations.length ? stations[p.stage].x : END_X + 2;
+      let nx = Math.min(p.x + BELT_V*dt, target, aheadX - 0.85);
+      if (nx < p.x) nx = p.x;
+      p.x = nx;
+      if (p.stage < stations.length && p.x >= target - 1e-3){
+        const s = stations[p.stage];
+        p.state = 'proc'; p.timer = s.cyc * (p.stage===0 && LINE.fault ? 1.25 : 1) * rnd(0.95,1.08); s.part = p;
+      }
+      if (p.stage >= stations.length && p.x >= END_X){
+        p.done = true; LINE.good++; LINE.completions.push(LINE.t);
+      }
+    }
+    aheadX = p.x;
+  }
+  // rejected parts slide into bin
+  parts.forEach(p => {
+    if (p.state === 'reject'){
+      p.z += dt*1.4; p.x += (REJECT.x - p.x)*Math.min(1,dt*2);
+      p.y = BELT_Y - 0.02 - Math.max(0, p.z-0.5)*0.35;
+      if (p.z > 1.9) p.done = true;
+    }
+  });
+  for (let k=parts.length-1;k>=0;k--) if (parts[k].done){ lineG.remove(parts[k].g); parts.splice(k,1); }
+  while (LINE.completions.length && LINE.completions[0] < LINE.t - 120) LINE.completions.shift();
+
+  // CNC condition monitoring
+  const vibT = 1.6 + LINE.wear*0.028 + (LINE.fault ? 3.9 : 0) + Math.sin(LINE.t*0.9)*0.15;
+  LINE.vib += (vibT - LINE.vib)*Math.min(1, dt*0.6) + rnd(-.06,.06);
+  LINE.vhAcc += dt;
+  if (LINE.vhAcc > 0.4){ LINE.vhAcc = 0; LINE.vibHist.push(LINE.vib); if (LINE.vibHist.length > 150) LINE.vibHist.shift(); }
+  if (LINE.wear > 80 && !LINE.rulWarned){ LINE.rulWarned = true; logEv(LINE.log, 'CNC-01 tool wear above 80% · schedule tool change', 'warn'); }
+
+  stations.forEach((s,i) => {
+    if (i===0 && s.maint > 0) s.state = 'maint';
+    else if (i===0 && (LINE.vib > 6.5)) s.state = 'crit';
+    else if (i===0 && (LINE.vib > 4.2 || LINE.wear > 80)) s.state = 'warn';
+    else s.state = s.part ? 'run' : 'idle';
+  });
+}
+
+const stateCol = {run:0x56d08a, idle:0x5b6d74, warn:0xf3b64a, crit:0xff5f57, maint:0x6cc6ff};
+function renderLine(dt){
+  const now = performance.now()/1000;
+  beltTex.offset.x -= BELT_V*dt*42/31.6;
+  parts.forEach(p => {
+    let y = p.y;
+    if (p.state==='proc' && p.stage===2) y = BELT_Y + 0.08;
+    p.g.position.set(p.x, y, p.z);
+  });
+  stations.forEach(s => { s.ring.material.color.set(stateCol[s.state]); });
+  // CNC
+  const cncOn = stations[0].part && stations[0].maint <= 0;
+  spindle.position.y = 1.95 - (cncOn ? 0.55 + Math.sin(LINE.t*3)*0.12 : 0);
+  bit.rotation.y += cncOn ? dt*40 : 0;
+  spindle.position.x = cncOn ? Math.sin(LINE.t*1.7)*0.18 : 0;
+  spindle.position.z = cncOn ? Math.cos(LINE.t*1.3)*0.05 : 0;
+  chips.forEach(c => {
+    const u = c.userData;
+    if (u.life <= 0 && cncOn && Math.random() < 0.3){ u.life = rnd(.3,.7); c.position.set(spindle.position.x, BELT_Y+0.05, spindle.position.z); u.v.set(rnd(-1.5,1.5), rnd(.8,2), rnd(-1.5,1.5)); }
+    if (u.life > 0){ u.life -= dt; u.v.y -= 6*dt; c.position.addScaledVector(u.v, dt); if (u.life <= 0) c.position.y = -5; }
+  });
+  // Laser
+  const lOn = !!stations[1].part;
+  beam.visible = lOn; beamDot.visible = lOn;
+  if (lOn){
+    const bx = Math.sin(LINE.t*9)*0.16, bz = Math.cos(LINE.t*13)*0.02;
+    laserHead.position.x = bx;
+    placeLink(beam, new THREE.Vector3(bx, 1.5, bz), new THREE.Vector3(bx, BELT_Y, bz));
+    beamDot.position.set(bx, BELT_Y, bz);
+  }
+  // Electropolish
+  const eOn = !!stations[2].part;
+  bubbles.forEach(b => { b.position.y += dt*(eOn?0.5:0.08); if (b.position.y > BELT_Y+0.2){ b.position.y = BELT_Y-0.02; b.position.x = rnd(-.8,.8); b.position.z = rnd(-.5,.5);} });
+  liquid.material.emissive.setHex(eOn ? 0x14707c : 0x0b3940);
+  // Vision
+  const vOn = !!stations[3].part;
+  const flash = vOn ? (Math.sin(now*22) > 0 ? 1 : 0.4) : 0;
+  ringLight.material.color.setRGB(0.23 + flash*0.7, 0.21 + flash*0.6, 0.31 + flash*0.69);
+  scanPlane.material.opacity = vOn ? 0.18 : 0;
+  scanPlane.position.y = vOn ? 1.15 - ((now*1.5)%1)*0.25 : 1.15;
+  // Sterilisation
+  const sOn = !!stations[4].part;
+  strRings.forEach(r => r.material.color.setHex(sOn ? 0xf3b64a : 0x54420f));
+  steam.forEach(s => {
+    s.userData.ph += dt*0.35; if (s.userData.ph > 1){ s.userData.ph = 0; s.position.x = rnd(-.8,.8); }
+    s.position.y = BELT_Y + 0.9 + s.userData.ph*1.6;
+    s.material.opacity = sOn ? (1 - s.userData.ph)*0.35 : 0;
+    s.scale.setScalar(0.6 + s.userData.ph*1.6);
+  });
+  // Packaging robot
+  const pk = stations[5].part;
+  const ph = pk ? 1 - clamp(pk.timer / stations[5].cyc, 0, 1) : 0;
+  const swing = pk ? Math.sin(ph*Math.PI) : 0;
+  pkBase.rotation.y = -0.2 + Math.sin(ph*Math.PI*2 - Math.PI/2)*1.4*(pk?1:0) + (pk?0:Math.sin(now*0.6)*0.08);
+  pkUpper.rotation.x = 0.55 + swing*0.25;
+  pkFore.rotation.x = 1.25 - swing*0.35;
+}
+
+/* =================================================================
+   Labels (HTML overlay)
+   ================================================================= */
+const tagsEl = $('#tags');
+const labels = [];
+function addLabel(group, pos){ const el = document.createElement('div'); el.className = 'tag'; tagsEl.appendChild(el); const L = {el, group, pos, html:'', cls:''}; labels.push(L); return L; }
+function setLabel(L, html, cls){ if (L.html !== html){ L.el.innerHTML = html; L.html = html; } const c = 'tag ' + (cls||''); if (L.cls !== c){ L.el.className = c; L.cls = c; } }
+const armLabels = arms.map(a => addLabel(orG, () => a.E.clone().add(new THREE.Vector3(0,0.12,0))));
+const lblConsole = addLabel(orG, () => new THREE.Vector3(CONSOLE.x, 1.7, CONSOLE.z));
+const lblAn = addLabel(orG, () => new THREE.Vector3(AN.x, 2.2, AN.z));
+const lblTray = addLabel(orG, () => new THREE.Vector3(TRAY.x, 1.2, TRAY.z));
+const lblAc = addLabel(orG, () => new THREE.Vector3(AC.x, 1.7, AC.z));
+const stLabels = stations.map(s => addLabel(lineG, () => new THREE.Vector3(s.x, s.id==='EPL-03'?1.6:(s.id==='PKG-06'?2.2:2.75), 0)));
+const lblReject = addLabel(lineG, () => new THREE.Vector3(REJECT.x, 1.25, REJECT.z));
+const _p = new THREE.Vector3();
+function updateLabels(){
+  const w = view.clientWidth, h = view.clientHeight;
+  const active = S.mode === 'or' ? orG : lineG;
+  for (const L of labels){
+    if (!S.labels || L.group !== active){ L.el.style.display = 'none'; continue; }
+    _p.copy(L.pos()).project(camera);
+    if (_p.z > 1 || _p.x < -1.2 || _p.x > 1.2 || _p.y < -1.2 || _p.y > 1.2){ L.el.style.display = 'none'; continue; }
+    L.el.style.display = 'block';
+    L.el.style.transform = `translate(${((_p.x*.5+.5)*w).toFixed(1)}px,${((-_p.y*.5+.5)*h).toFixed(1)}px) translate(-50%,-110%)`;
+  }
+}
+function refreshLabelText(){
+  arms.forEach((a,i) => {
+    const cls = a.state==='crit'?'crit':a.state==='warn'?'warn':(a.act>0.5?'':'idle');
+    setLabel(armLabels[i], `${a.id} <span>·</span> ${a.temp.toFixed(1)}°C`, cls);
+  });
+  setLabel(lblConsole, `Surgeon console <span>·</span> ${Math.round(36 + Math.sin(S.simT*0.7)*4)} ms`, '');
+  setLabel(lblAn, `Anaesthesia <span>·</span> HR ${Math.round(OR.vit.hr)}`, '');
+  const trayN = OR.inst.filter(i=>i.loc==='Tray').length;
+  setLabel(lblTray, `Instrument tray <span>·</span> ${trayN} ready`, trayN ? '' : 'warn');
+  setLabel(lblAc, `Autoclave <span>·</span> ${Math.round(OR.ac.p*100)}%`, 'warn');
+  stations.forEach((s,i) => {
+    const cls = {run:'', idle:'idle', warn:'warn', crit:'crit', maint:'warn'}[s.state];
+    const extra = i===0 ? ` <span>·</span> ${LINE.vib.toFixed(1)} mm/s` : '';
+    setLabel(stLabels[i], `${s.id}${extra}`, cls);
+  });
+  setLabel(lblReject, `Reject bin <span>·</span> ${LINE.rej}`, LINE.rej ? 'crit' : 'idle');
+}
+
+/* =================================================================
+   Panels
+   ================================================================= */
+const phaseBars = $('#phaseBars'), phaseNames = $('#phaseNames');
+PHASES.forEach(p => { phaseBars.insertAdjacentHTML('beforeend','<div class="phase"><i></i></div>'); phaseNames.insertAdjacentHTML('beforeend',`<div>${p.n}</div>`); });
+const armRows = $('#armRows');
+arms.forEach(a => armRows.insertAdjacentHTML('beforeend', `<tr>
+  <td><b>${a.id}</b><span class="sub">${a.tool}</span></td>
+  <td><span class="pill" data-k="st"></span></td>
+  <td class="num" data-k="jt"></td>
+  <td><span class="num" data-k="tp"></span><canvas class="spark" width="140" height="44"></canvas></td>
+  <td class="num" data-k="tq"></td></tr>`));
+const stRows = $('#stRows');
+stations.forEach(s => stRows.insertAdjacentHTML('beforeend', `<tr>
+  <td><b>${s.id}</b><span class="sub">${s.name}</span></td>
+  <td><span class="pill" data-k="st"></span></td>
+  <td><div class="bar"><i></i></div><span class="sub num" data-k="u"></span></td>
+  <td class="num" data-k="d"></td></tr>`));
+
+function spark(cv, data, lo, hi, color, warnAt){
+  const c = cv.getContext('2d'), w = cv.width, h = cv.height;
+  c.clearRect(0,0,w,h);
+  if (data.length < 2) return;
+  if (warnAt != null){ const y = h - (warnAt-lo)/(hi-lo)*h; c.strokeStyle = 'rgba(243,182,74,.35)'; c.setLineDash([4,4]); c.beginPath(); c.moveTo(0,y); c.lineTo(w,y); c.stroke(); c.setLineDash([]); }
+  c.beginPath();
+  data.forEach((v,k) => { const x = k/(data.length-1)*w, y = h - clamp((v-lo)/(hi-lo),0,1)*(h-4) - 2; k ? c.lineTo(x,y) : c.moveTo(x,y); });
+  c.strokeStyle = color; c.lineWidth = Math.max(1.5, w/250); c.stroke();
+  c.lineTo(w,h); c.lineTo(0,h); c.closePath(); c.fillStyle = color + '22'; c.fill();
+  const lv = data[data.length-1], ly = h - clamp((lv-lo)/(hi-lo),0,1)*(h-4) - 2;
+  c.fillStyle = color; c.beginPath(); c.arc(w-3, ly, Math.max(2.5,w/120), 0, Math.PI*2); c.fill();
+}
+const pillTxt = {active:['Active',''], hold:['Holding','idle'], moving:['Moving','idle'], idle:['Idle','idle'], warn:['Hot','warn'], crit:['Derated','crit']};
+let dirtyLog = true;
+function renderLog(el, store){ el.innerHTML = store.map(e => `<li class="${e.sev}"><time>${e.t}</time><span class="d"></span><span>${e.msg}</span></li>`).join(''); }
+
+function alertHTML(sev, title, body){ return `<div class="alert ${sev}"><span class="sev"></span><div><b>${title}</b><p>${body}</p></div></div>`; }
+
+function updatePanels(){
+  $('#hudSync').textContent = `Twin sync ${Math.round(11 + Math.random()*6)} ms`;
+  if (S.mode === 'or'){
+    $('#hudMain').textContent = `Case ${fmt(OR.caseT)} · ${PHASES[OR.phase].n}`;
+    $('#caseNo').textContent = `Case #${String(OR.caseNo).padStart(4,'0')}`;
+    $('#caseClock').textContent = `${fmt(OR.caseT)} / ${fmt(CASE_LEN)}`;
+    let acc = 0;
+    [...phaseBars.children].forEach((b,k) => { const f = clamp((OR.caseT-acc)/PHASES[k].d,0,1); b.firstChild.style.width = (f*100)+'%'; acc += PHASES[k].d; });
+    [...phaseNames.children].forEach((n,k) => n.className = k===OR.phase ? 'on' : '');
+    const v = OR.vit;
+    $('#vHr').textContent = Math.round(v.hr); $('#vSp').textContent = Math.round(v.sp);
+    $('#vBp').textContent = `${Math.round(v.sys)}/${Math.round(v.dia)}`; $('#vCo').textContent = Math.round(v.co);
+    [...armRows.children].forEach((tr,i) => {
+      const a = arms[i], [t,c] = pillTxt[a.state] || pillTxt.idle;
+      const pill = tr.querySelector('[data-k=st]'); pill.textContent = t; pill.className = 'pill ' + c;
+      tr.querySelector('[data-k=jt]').innerHTML = `${a.shoulder.toFixed(0)}° / ${a.elbow.toFixed(0)}°`;
+      const tp = tr.querySelector('[data-k=tp]'); tp.textContent = a.temp.toFixed(1); tp.style.color = a.state==='crit'?'var(--crit)':a.state==='warn'?'var(--warn)':'';
+      tr.querySelector('[data-k=tq]').textContent = a.torque.toFixed(2);
+      spark(tr.querySelector('canvas'), a.hist, 30, 70, a.state==='crit'?'#ff5f57':a.state==='warn'?'#f3b64a':'#6cc6ff', 52);
+    });
+    $('#instRows').innerHTML = OR.inst.map(it => {
+      let life, cls = '';
+      if (it.limit){ const f = it.used/it.limit; cls = f>=1?'crit':f>=0.9?'warn':''; life = `<div class="bar ${cls}"><i style="width:${Math.min(100,f*100)}%"></i></div><span class="sub num">${it.used}/${it.limit} uses</span>`; }
+      else life = `<span class="num">${it.used}</span><span class="sub">reprocess cycles</span>`;
+      const locCls = it.loc==='Retired'?'crit':it.loc==='Autoclave'?'warn':it.loc==='Tray'?'idle':'';
+      return `<tr><td>${it.name}<span class="sub num">${it.sn}</span></td><td><span class="pill ${locCls}">${it.loc}</span></td><td>${life}</td></tr>`;
+    }).join('');
+    const a3 = arms[2];
+    if (OR.fault){
+      const K = 0.07, target = 33 + 10*a3.act + 36;
+      let body;
+      if (a3.temp >= 65) body = `Wrist motor at ${a3.temp.toFixed(1)} °C. Thermal derate active, ARM-3 motion limited to 20%. Swap the drive or hand bipolar tasks to ARM-2.`;
+      else if (target > 65){ const secs = Math.log((target-a3.temp)/(target-65))/K; body = `Wrist motor ${a3.temp.toFixed(1)} °C and rising. Thermal cutoff predicted in ${Math.max(0,secs).toFixed(0)} s at the current duty cycle. Recommend reducing ARM-3 load now.`; }
+      else body = `Motor temperature elevated at ${a3.temp.toFixed(1)} °C.`;
+      $('#orAlert').innerHTML = alertHTML(a3.temp >= 62 ? 'crit' : 'warn', 'ARM-3 wrist actuator overheating', body);
+    } else {
+      const near = OR.inst.find(i => i.arm>=0 && i.limit && i.used/i.limit >= 0.9);
+      $('#orAlert').innerHTML = near
+        ? alertHTML('warn', `${near.name} near end of life`, `${near.used}/${near.limit} uses on ${near.loc}. The twin will swap it for a spare at the end of this case.`)
+        : alertHTML('', 'All systems nominal', 'Arm thermals, kinematics and patient vitals are within expected ranges for this phase.');
+    }
+    if (dirtyLog){ renderLog($('#orLog'), OR.log); }
+  } else {
+    $('#hudMain').textContent = `Line L2 · ${fmtH(LINE.t)}`;
+    $('#shiftClock').textContent = `Shift ${fmtH(LINE.t)}`;
+    const win = Math.min(120, LINE.t);
+    const thr = win > 5 ? LINE.completions.length / win * 3600 : 0;
+    $('#kThr').textContent = Math.round(thr);
+    const yld = (LINE.good + LINE.rej) ? LINE.good/(LINE.good+LINE.rej)*100 : 100;
+    $('#kYld').textContent = yld.toFixed(1);
+    const avail = LINE.t ? 1 - LINE.downtime/LINE.t : 1;
+    const perf = clamp(thr / (3600/5.6), 0, 1);
+    $('#kOee').textContent = LINE.t > 20 ? Math.round(avail*perf*(yld/100)*100) : '—';
+    $('#kWip').textContent = parts.filter(p=>p.state!=='reject').length;
+    const stPill = {run:['Running',''], idle:['Waiting','idle'], warn:['Degrading','warn'], crit:['Alarm','crit'], maint:['Tool change','warn']};
+    [...stRows.children].forEach((tr,i) => {
+      const s = stations[i], [t,c] = stPill[s.state];
+      const pill = tr.querySelector('[data-k=st]'); pill.textContent = t; pill.className = 'pill ' + c;
+      const u = LINE.t ? s.busy/LINE.t*100 : 0;
+      tr.querySelector('.bar i').style.width = Math.min(100,u)+'%';
+      tr.querySelector('[data-k=u]').textContent = `${u.toFixed(0)}% · ${s.cyc.toFixed(1)} s cycle`;
+      tr.querySelector('[data-k=d]').textContent = s.done;
+    });
+    spark($('#vibSpark'), LINE.vibHist, 0, 10, LINE.vib>6.5?'#ff5f57':LINE.vib>4.2?'#f3b64a':'#6cc6ff', 4.5);
+    const vibEl = $('#cVib'); vibEl.textContent = `${LINE.vib.toFixed(2)} mm/s`; vibEl.style.color = LINE.vib>6.5?'var(--crit)':LINE.vib>4.2?'var(--warn)':'';
+    $('#cWear').textContent = `${LINE.wear.toFixed(1)}%`;
+    const wb = $('#cWearBar'); wb.className = 'bar ' + (LINE.wear>90?'crit':LINE.wear>80?'warn':''); wb.firstChild.style.width = LINE.wear+'%';
+    const rate = LINE.fault ? 2.1 : 0.32;
+    const rulParts = Math.max(0, Math.floor((100-LINE.wear)/rate));
+    $('#cRul').textContent = stations[0].maint > 0 ? 'In progress' : `in ~${rulParts} parts (${fmt(rulParts*5.6)} at current rate)`;
+    $('#cCounts').textContent = `${LINE.good} / ${LINE.rej}`;
+    if (stations[0].maint > 0) $('#lineAlert').innerHTML = alertHTML('warn', 'CNC-01 tool change in progress', `Station offline for ${stations[0].maint.toFixed(0)} s. Upstream parts are queuing; availability drops accordingly.`);
+    else if (LINE.fault) $('#lineAlert').innerHTML = alertHTML(LINE.vib>6.5?'crit':'warn', 'CNC-01 spindle bearing degradation', `Vibration ${LINE.vib.toFixed(1)} mm/s (limit 4.5). Tool wear is accelerating and jaw-serration burrs are driving rejects at VIS-04. Predicted tool failure in ~${rulParts} parts. Recommend maintenance now.`);
+    else if (LINE.wear > 80) $('#lineAlert').innerHTML = alertHTML('warn', 'CNC-01 cutting tool near end of life', `Wear at ${LINE.wear.toFixed(0)}%. Reject risk rises above 65% wear. Schedule a tool change within ${rulParts} parts.`);
+    else $('#lineAlert').innerHTML = alertHTML('', 'Line running to plan', `Bottleneck is STR-05 at ${stations[4].cyc} s cycle. All stations within condition limits.`);
+    if (dirtyLog){ renderLog($('#lineLog'), LINE.log); }
+  }
+  dirtyLog = false;
+  refreshLabelText();
+}
+
+function drawPanelECG(){
+  const cv = $('#ecg'); drawECG(cv.getContext('2d'), cv.width, cv.height, OR.ecgBuf, OR.ecgIdx, '#7ef0a8', '#071013');
+}
+
+/* =================================================================
+   Controls
+   ================================================================= */
+const CAMS = {
+  or:  {pos:[4.6, 3.6, 5.2], target:[0.2, 1.3, 0]},
+  line:{pos:[-3, 12, 19], target:[0.5, 0.6, 0]}
+};
+function setCam(m){
+  const c = CAMS[m], t = new THREE.Vector3(...c.target), p = new THREE.Vector3(...c.pos);
+  const aspect = view.clientWidth / Math.max(1, view.clientHeight);
+  const k = aspect < 1 ? (m==='line' ? 2.1 : 1.35) : aspect < 1.4 ? (m==='line' ? 1.4 : 1.1) : 1;
+  p.sub(t).multiplyScalar(k).add(t);
+  camera.position.copy(p); controls.target.copy(t); controls.update();
+}
+function setMode(m){
+  S.mode = m;
+  orG.visible = m === 'or'; lineG.visible = m === 'line';
+  $('#modeOr').setAttribute('aria-pressed', m==='or'); $('#modeLine').setAttribute('aria-pressed', m==='line');
+  $('#orPanels').hidden = m !== 'or'; $('#linePanels').hidden = m !== 'line';
+  $('#xrayBtn').hidden = m !== 'or';
+  scene.fog.near = m==='or' ? 16 : 24; scene.fog.far = m==='or' ? 40 : 60;
+  setCam(m); dirtyLog = true; syncFaultBtn(); updatePanels();
+  try { history.replaceState(null, '', m==='line' ? '#line' : '#or'); } catch(e){}
+}
+$('#modeOr').onclick = () => setMode('or');
+$('#modeLine').onclick = () => setMode('line');
+$('#playBtn').onclick = () => { S.running = !S.running; $('#playBtn').textContent = S.running ? 'Pause' : 'Play'; };
+$('#speedSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  S.speed = +b.dataset.s;
+  [...$('#speedSeg').children].forEach(x => x.setAttribute('aria-pressed', x===b));
+});
+function syncFaultBtn(){
+  const f = S.mode==='or' ? OR.fault : (LINE.fault || LINE.wear > 80);
+  const btn = $('#faultBtn');
+  btn.textContent = f ? 'Run maintenance' : 'Inject fault';
+  btn.className = 'btn ' + (f ? 'fix' : 'fault');
+}
+$('#faultBtn').onclick = () => {
+  if (S.mode === 'or'){
+    if (!OR.fault){
+      OR.fault = true;
+      if (OR.phase < 2) { OR.caseT = PHASES[0].d + PHASES[1].d + 2; }
+      logEv(OR.log, 'Fault injected · ARM-3 wrist actuator cooling degraded', 'crit');
+    } else {
+      OR.fault = false; arms[2].temp = 40;
+      logEv(OR.log, 'ARM-3 drive module swapped · thermal readings normal', 'ok');
+    }
+  } else {
+    if (!(LINE.fault || LINE.wear > 80)){
+      LINE.fault = true; logEv(LINE.log, 'Fault injected · CNC-01 spindle bearing degradation', 'crit');
+    } else {
+      LINE.fault = false; LINE.wear = 0; LINE.rulWarned = false; stations[0].maint = 6;
+      logEv(LINE.log, 'Maintenance dispatched · CNC-01 bearing and cutting tool replaced', 'ok');
+    }
+  }
+  syncFaultBtn(); updatePanels();
+};
+$('#xrayBtn').onclick = () => {
+  S.xray = !S.xray; $('#xrayBtn').setAttribute('aria-pressed', S.xray);
+  const o = S.xray ? 0.18 : 1;
+  matDrape.opacity = o; matSkin.opacity = S.xray ? 0.25 : 1;
+  matDrape.depthWrite = matSkin.depthWrite = !S.xray;
+};
+$('#labelBtn').onclick = () => { S.labels = !S.labels; $('#labelBtn').setAttribute('aria-pressed', S.labels); };
+$('#resetBtn').onclick = () => setCam(S.mode);
+
+function resize(){
+  const w = view.clientWidth, h = view.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w/Math.max(1,h); camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(view);
+
+/* ---------------- Warm start so the first frame shows a live case ---------------- */
+logEv(OR.log, 'Twin connected · 4 arms, console, anaesthesia monitor, autoclave', 'ok');
+logEv(LINE.log, 'Twin connected · 6 stations streaming at 10 Hz', 'ok');
+OR.caseT = PHASES[0].d + PHASES[1].d + 8;
+for (let k=0;k<240;k++){ S.simT += 0.05; stepOR(0.05); }
+for (let k=0;k<900;k++){ stepLine(0.05); }
+
+setMode(location.hash === '#line' ? 'line' : 'or');
+resize();
+
+let last = performance.now(), panelAcc = 0, monAcc = 0;
+function loop(now){
+  const rdt = Math.min(0.05, (now - last)/1000); last = now;
+  const dt = S.running ? rdt * S.speed : 0;
+  if (dt > 0){
+    const steps = Math.ceil(dt / 0.05), sd = dt/steps;
+    for (let k=0;k<steps;k++){ S.simT += sd; stepOR(sd); stepLine(sd); }
+  }
+  renderOR(); renderLine(dt);
+  controls.update();
+  renderer.render(scene, camera);
+  updateLabels();
+  panelAcc += rdt; monAcc += rdt;
+  if (panelAcc > 0.2){ panelAcc = 0; updatePanels(); syncFaultBtn(); }
+  if (monAcc > 0.05){ monAcc = 0; if (S.mode==='or'){ drawPanelECG(); drawMonitor(); } }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+})();
 </script>
-
-</body></html>
+</body>
+</html>
